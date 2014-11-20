@@ -387,8 +387,15 @@ def _safeFormat(fmtString, fmtDict):
             except:
                 text = ('PATHOLOGICAL ERROR IN BOTH FORMAT STRING AND '
                         'MESSAGE DETAILS, MESSAGE LOST')
-    if isinstance(text, unicode):
-        text = text.encode("utf-8")
+
+    # Return a native string
+    if _PY3:
+        if isinstance(text, bytes):
+            text = text.decode("utf-8")
+    else:
+        if isinstance(text, unicode):
+            text = text.encode("utf-8")
+
     return text
 
 

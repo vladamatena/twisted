@@ -287,7 +287,7 @@ class LogPublisherTestCaseMixin:
         setting, if it was modified by L{setUp}.
         """
         for chunk in self.out:
-            self.failUnless(isinstance(chunk, bytes),
+            self.failUnless(isinstance(chunk, str),
                             "%r was not a string" % (chunk,))
 
         if self._origEncoding is not None:
@@ -323,7 +323,7 @@ class LogPublisherTestCase(LogPublisherTestCaseMixin,
         self.lp.msg(message)
         self.assertEqual(len(self.out), 1)
         if _PY3:
-            self.assertIn(message.encode("utf-8"), self.out[0])
+            self.assertIn(message, self.out[0])
         else:
             self.assertIn('with str error', self.out[0])
             self.assertIn('UnicodeEncodeError', self.out[0])
@@ -335,15 +335,16 @@ class FileObserverTestCase(LogPublisherTestCaseMixin,
     """
     Tests for L{log.FileObserver}.
     """
-    ERROR_INVALID_FORMAT = b'Invalid format string'
-    ERROR_UNFORMATTABLE_OBJECT = b'UNFORMATTABLE OBJECT'
-    ERROR_FORMAT = \
-        b'Invalid format string or unformattable object in log message'
-    ERROR_PATHOLOGICAL = b'PATHOLOGICAL ERROR'
+    ERROR_INVALID_FORMAT = 'Invalid format string'
+    ERROR_UNFORMATTABLE_OBJECT = 'UNFORMATTABLE OBJECT'
+    ERROR_FORMAT = (
+        'Invalid format string or unformattable object in log message'
+    )
+    ERROR_PATHOLOGICAL = 'PATHOLOGICAL ERROR'
 
-    ERROR_NO_FORMAT = b'Unable to format event'
-    ERROR_UNFORMATTABLE_SYSTEM = b'[UNFORMATTABLE]'
-    ERROR_MESSAGE_LOST = b'MESSAGE LOST: unformattable object logged'
+    ERROR_NO_FORMAT = 'Unable to format event'
+    ERROR_UNFORMATTABLE_SYSTEM = '[UNFORMATTABLE]'
+    ERROR_MESSAGE_LOST = 'MESSAGE LOST: unformattable object logged'
 
     def _getTimezoneOffsetTest(self, tzname, daylightOffset, standardOffset):
         """

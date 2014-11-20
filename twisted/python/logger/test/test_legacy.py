@@ -364,7 +364,7 @@ class LegacyLogObserverWrapperTests(unittest.TestCase):
         )
         self.assertEquals(
             legacyLog.textFromEventDict(event),
-            b"Hello, world!"
+            "Hello, world!"
         )
 
 
