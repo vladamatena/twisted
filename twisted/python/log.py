@@ -363,8 +363,18 @@ if 'theLogPublisher' not in globals():
 
 def _safeFormat(fmtString, fmtDict):
     """
-    Try to format the string C{fmtString} using C{fmtDict} arguments,
-    swallowing all errors to always return a string.
+    Try to format a string, swallowing all errors to always return a string.
+
+    @note: For backward-compatibility reasons, this function ensures that it
+        returns a native string, meaning C{bytes} in Python 2 and C{unicode} in
+        Python 3.
+
+    @param fmtString: a C{%}-format string
+
+    @param fmtDict: string formatting arguments for C{fmtString}
+
+    @return: A native string, formatted from C{fmtString} and C{fmtDict}.
+    @rtype: L{str}
     """
     # There's a way we could make this if not safer at least more
     # informative: perhaps some sort of str/repr wrapper objects
