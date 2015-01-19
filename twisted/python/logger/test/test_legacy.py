@@ -297,3 +297,15 @@ class PublishToNewObserverTests(unittest.TestCase):
         self.assertEquals(
             self.events[0]["log_system"], self.events[0]["system"]
         )
+
+
+    def test_textFromEventDictRaises(self):
+        """
+        If C{textFromEventDict} raises an exception, the event still gets
+        published, but no text formatting information is added.
+        """
+        def oops(e):
+            raise RuntimeError()
+
+        publishToNewObserver(self.observer, self.legacyEvent("xyzzy"), oops)
+        self.assertEquals(formatEvent(self.events[0]), u"")
