@@ -248,7 +248,7 @@ class FileLogObserverTests(TestCase):
             observer = jsonFileLogObserver(fileHandle)
             event = dict(x=1)
             observer(event)
-            self.assertEquals(fileHandle.getvalue(), u'{"x": 1}\n')
+            self.assertEquals(fileHandle.getvalue(), u'\x1e{"x": 1}\n')
 
         finally:
             fileHandle.close()
@@ -259,11 +259,31 @@ class FileLogObserverTests(TestCase):
         L{eventsFromJSONLogFile} reads events from a file.
         """
         try:
-            fileHandle = StringIO(u'{"x": 1}\n')
+            fileHandle = StringIO(u'\x1e{"x": 1}\n')
             events = eventsFromJSONLogFile(fileHandle)
 
-            nextEvent = next(events)
-            self.assertEquals(nextEvent, {u"x": 1})
+            self.assertEquals(next(events), {u"x": 1})
+            self.assertRaises(StopIteration, next, events)  # No more events
 
+        finally:
+            fileHandle.close()
+
+
+    def test_roundTrip(self):
+        """
+        Data written by L{FileLogObserver} and read by L{eventsFromJSONLogFile}
+        is reconstructed properly.
+        """
+        try:
+            event = dict(x=1)
+
+            fileHandle = StringIO()
+            observer = jsonFileLogObserver(fileHandle)
+            observer(event)
+
+            fileHandle.seek(0)
+            events = eventsFromJSONLogFile(fileHandle)
+
+            self.assertEquals(tuple(events), (event,))
         finally:
             fileHandle.close()
