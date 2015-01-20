@@ -309,6 +309,22 @@ class FileLogObserverTests(TestCase):
             fileHandle.close()
 
 
+    def test_readUnseparated(self):
+        """
+        Multiple events without a record separator are skipped.
+        """
+        try:
+            fileHandle = StringIO(
+                u'\x1e{"x": 1}\n{"y": 2}\n'
+            )
+            events = eventsFromJSONLogFile(fileHandle)
+
+            self.assertRaises(StopIteration, next, events)  # No more events
+
+        finally:
+            fileHandle.close()
+
+
     def test_roundTrip(self):
         """
         Data written by L{FileLogObserver} and read by L{eventsFromJSONLogFile}
