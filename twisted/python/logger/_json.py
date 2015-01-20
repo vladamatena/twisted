@@ -13,10 +13,13 @@ from uuid import UUID
 from ._flatten import flattenEvent
 from ._file import FileLogObserver
 from ._levels import LogLevel
+from ._logger import Logger
 from twisted.python.constants import NamedConstant
 
 from twisted.python.compat import unicode
 from twisted.python.failure import Failure
+
+log = Logger()
 
 
 
@@ -249,8 +252,13 @@ def eventsFromJSONLogFile(inFile):
     @rtype: iterable of L{dict}
     """
     def eventFromRecord(record):
-        if record and record[-1] == 10:  # 10 == "\n"
-            return eventFromJSON(bytes(record))
+        if record and record[-1] == 10:  # 10 is "\n"
+            try:
+                return eventFromJSON(bytes(record))
+            except ValueError:
+                log.error(
+                    u"Unable to read JSON record: {record}", record=record
+                )
 
     buffer = bytearray()
 

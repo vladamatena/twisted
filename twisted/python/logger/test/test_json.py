@@ -254,15 +254,74 @@ class FileLogObserverTests(TestCase):
             fileHandle.close()
 
 
-    def test_eventsFromJSONLogFile(self):
+    def test_readEvents(self):
         """
         L{eventsFromJSONLogFile} reads events from a file.
         """
         try:
-            fileHandle = StringIO(u'\x1e{"x": 1}\n')
+            fileHandle = StringIO(
+                u'\x1e{"x": 1}\n'
+                u'\x1e{"y": 2}\n'
+            )
             events = eventsFromJSONLogFile(fileHandle)
 
             self.assertEquals(next(events), {u"x": 1})
+            self.assertEquals(next(events), {u"y": 2})
+            self.assertRaises(StopIteration, next, events)  # No more events
+
+        finally:
+            fileHandle.close()
+
+
+    def test_readTruncated(self):
+        """
+        If the JSON text for a record is truncated, skip it.
+        """
+        try:
+            fileHandle = StringIO(
+                u'\x1e{"x": '
+                u'\x1e{"y": 2}\n'
+            )
+            events = eventsFromJSONLogFile(fileHandle)
+
+            self.assertEquals(next(events), {u"y": 2})
+            self.assertRaises(StopIteration, next, events)  # No more events
+
+        finally:
+            fileHandle.close()
+
+
+    def test_readInvalid(self):
+        """
+        If the JSON text for a record is invalid, skip it.
+        """
+        try:
+            fileHandle = StringIO(
+                u'\x1e{"x": }\n'
+                u'\x1e{"y": 2}\n'
+            )
+            events = eventsFromJSONLogFile(fileHandle)
+
+            self.assertEquals(next(events), {u"y": 2})
+            self.assertRaises(StopIteration, next, events)  # No more events
+
+        finally:
+            fileHandle.close()
+
+
+    def test_skipTruncated(self):
+        """
+        If the first record separator is missing
+        """
+        try:
+            fileHandle = StringIO(
+                u'\x1e{"x": 1}\n'
+                u'\x1e{"y": 2}\n'
+            )
+            events = eventsFromJSONLogFile(fileHandle)
+
+            self.assertEquals(next(events), {u"x": 1})
+            self.assertEquals(next(events), {u"y": 2})
             self.assertRaises(StopIteration, next, events)  # No more events
 
         finally:
