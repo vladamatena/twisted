@@ -164,7 +164,7 @@ def eventAsJSON(event):
     structure as possible.
 
     Not all structure from the log event will be preserved when it is
-    serialized
+    serialized.
 
     @param event: A log event dictionary.
     @type event: L{dict} with arbitrary keys and values
@@ -215,8 +215,13 @@ def eventFromJSON(eventText):
 
 def jsonFileLogObserver(outFile):
     """
-    Create a L{FileLogObserver} that emits JSON lines to a specified (writable)
-    file-like object.
+    Create a L{FileLogObserver} that emits JSON-serialized events to a
+    specified (writable) file-like object.
+
+    Events are written according to the IETF draft document
+    "draft-ietf-json-text-sequence-13", meaning that JSON text
+    is encoded as UTF-8 bytes, preceded by a record separator character
+    (C{u"\x1e"}) and followed by a line feed character (C{u"\n"}).
 
     @param outFile: A file-like object.  Ideally one should be passed which
         accepts L{unicode} data.  Otherwise, UTF-8 L{bytes} will be used.
@@ -225,7 +230,10 @@ def jsonFileLogObserver(outFile):
     @return: A file log observer.
     @rtype: L{FileLogObserver}
     """
-    return FileLogObserver(outFile, lambda event: eventAsJSON(event) + u"\n")
+    return FileLogObserver(
+        outFile,
+        lambda event: u"\x1e{0}\n".format(eventAsJSON(event))
+    )
 
 
 
@@ -240,5 +248,27 @@ def eventsFromJSONLogFile(inFile):
     @return: Log events as read from C{inFile}.
     @rtype: iterable of L{dict}
     """
-    for line in inFile:
-        yield eventFromJSON(line)
+    def eventFromRecord(record):
+        if record and record[-1] == 10:  # 10 == "\n"
+            return eventFromJSON(bytes(record))
+
+    buffer = bytearray()
+
+    while True:
+        newData = inFile.read(4096)
+
+        if not newData:
+            event = eventFromRecord(buffer)
+            if event is not None:
+                yield event
+            break
+
+        buffer += newData.encode("utf-8")
+        records = buffer.split(b"\x1e")
+
+        for record in records[:-1]:
+            event = eventFromRecord(record)
+            if event is not None:
+                yield event
+
+        buffer = records[-1]
