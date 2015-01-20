@@ -309,25 +309,6 @@ class FileLogObserverTests(TestCase):
             fileHandle.close()
 
 
-    def test_skipTruncated(self):
-        """
-        If the first record separator is missing
-        """
-        try:
-            fileHandle = StringIO(
-                u'\x1e{"x": 1}\n'
-                u'\x1e{"y": 2}\n'
-            )
-            events = eventsFromJSONLogFile(fileHandle)
-
-            self.assertEquals(next(events), {u"x": 1})
-            self.assertEquals(next(events), {u"y": 2})
-            self.assertRaises(StopIteration, next, events)  # No more events
-
-        finally:
-            fileHandle.close()
-
-
     def test_roundTrip(self):
         """
         Data written by L{FileLogObserver} and read by L{eventsFromJSONLogFile}
