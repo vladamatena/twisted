@@ -301,20 +301,3 @@ class PublishToNewObserverTests(unittest.TestCase):
         self.assertEquals(
             self.events[0]["log_system"], self.events[0]["system"]
         )
-
-
-    def test_textFromEventDictRaises(self):
-        """
-        If C{textFromEventDict} raises an exception, the event still gets
-        published, but no text formatting information is added.
-
-        @note: In the legacy logging module, if C{textFromEventDict} were to
-            raise an exception, the exception was not propagated to the caller.
-            L{publishToNewObserver} guards against this, as it introduced a
-            regression.  See issue #7676 for specifics.
-        """
-        def oops(e):
-            raise RuntimeError()
-
-        publishToNewObserver(self.observer, self.legacyEvent(), oops)
-        self.assertEquals(formatEvent(self.events[0]), u"")

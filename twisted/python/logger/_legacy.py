@@ -110,10 +110,7 @@ def publishToNewObserver(observer, eventDict, textFromEventDict):
         eventDict["log_time"] = eventDict["time"]
 
     if "log_format" not in eventDict:
-        try:
-            text = textFromEventDict(eventDict)
-        except:
-            text = None
+        text = textFromEventDict(eventDict)
         if text is not None:
             eventDict["log_text"] = text
             eventDict["log_format"] = u"{log_text}"
@@ -129,7 +126,7 @@ def publishToNewObserver(observer, eventDict, textFromEventDict):
         eventDict["log_level"] = level
 
     if "log_namespace" not in eventDict:
-        eventDict["log_namespace"] = "log_legacy"
+        eventDict["log_namespace"] = u"log_legacy"
 
     if "log_system" not in eventDict and "system" in eventDict:
         eventDict["log_system"] = eventDict["system"]
