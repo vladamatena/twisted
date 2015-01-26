@@ -216,26 +216,33 @@ def eventFromJSON(eventText):
 
 
 
-def jsonFileLogObserver(outFile):
+def jsonFileLogObserver(outFile, rs=u"\x1e"):
     """
     Create a L{FileLogObserver} that emits JSON-serialized events to a
     specified (writable) file-like object.
 
-    Events are written according to the IETF draft document
-    "draft-ietf-json-text-sequence-13", meaning that JSON text
-    is encoded as UTF-8 bytes, preceded by a record separator character
-    (C{u"\x1e"}) and followed by a line feed character (C{u"\n"}).
+    Events are written in the following form::
+
+        RS + JSON + NL
+
+    C{JSON} is the serialized event, which is JSON text.  C{NL} is a newline
+    (C{u"\n"}).  C{RS} is a record separator.  By default, this is a single
+    RS character (C{u"\x1e"}), which makes the default output conform to the
+    IETF draft document "draft-ietf-json-text-sequence-13".
 
     @param outFile: A file-like object.  Ideally one should be passed which
         accepts L{unicode} data.  Otherwise, UTF-8 L{bytes} will be used.
     @type outFile: L{io.IOBase}
+
+    @param rs: The desired record separator.
+    @type rs: L{unicode}
 
     @return: A file log observer.
     @rtype: L{FileLogObserver}
     """
     return FileLogObserver(
         outFile,
-        lambda event: u"\x1e{0}\n".format(eventAsJSON(event))
+        lambda event: u"{0}{1}\n".format(rs, eventAsJSON(event))
     )
 
 

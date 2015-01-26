@@ -239,19 +239,52 @@ class FileLogObserverTests(TestCase):
             fileHandle.close()
 
 
-    def test_observeWrites(self):
+    def _observeWrites(self, rs=u"\x1e"):
         """
-        L{FileLogObserver} writes to the given file when it observes events.
+        Test that observers created by L{jsonFileLogObserver} with the given
+        arguments writes events serialized as JSON text, using the given record
+        sparator.
+
+        @param rs: A record separator.
+        @type rs: L{unicode}
+
+        @param kwargs: Keyword arguments to pass to L{jsonFileLogObserver}.
+        @type kwargs: L{dict}
         """
+        if rs is None:
+            kwargs = {}
+        else:
+            kwargs = dict(rs=rs)
+
         try:
             fileHandle = StringIO()
-            observer = jsonFileLogObserver(fileHandle)
+            observer = jsonFileLogObserver(fileHandle, **kwargs)
             event = dict(x=1)
             observer(event)
-            self.assertEquals(fileHandle.getvalue(), u'\x1e{"x": 1}\n')
+            self.assertEquals(
+                fileHandle.getvalue(), u'{0}{{"x": 1}}\n'.format(rs)
+            )
 
         finally:
             fileHandle.close()
+
+
+    def test_observeWritesRSNL(self):
+        """
+        A L{FileLogObserver} created by L{jsonFileLogObserver} writes events
+        serialzed as JSON text to a file when it observes events.
+        By default, the record separator is C{u"\x1e"}.
+        """
+        self._observeWrites()
+
+
+    def test_observeWritesNL(self):
+        """
+        A L{FileLogObserver} created by L{jsonFileLogObserver} writes events
+        serialzed as JSON text to a file when it observes events.
+        This test sets the record separator to C{u""}.
+        """
+        self._observeWrites(rs=u"")
 
 
     def test_readEvents(self):
