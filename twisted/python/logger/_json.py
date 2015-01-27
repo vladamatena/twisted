@@ -264,7 +264,7 @@ def eventsFromJSONLogFile(inFile, rs=None):
     @rtype: iterable of L{dict}
     """
     def eventFromBytearray(record):
-        text = bytes(record).encode("utf-8")
+        text = bytes(record).decode("utf-8")
         try:
             return eventFromJSON(text)
         except ValueError:
