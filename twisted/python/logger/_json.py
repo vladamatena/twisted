@@ -234,7 +234,7 @@ def jsonFileLogObserver(outFile, rs=u"\x1e"):
         accepts L{unicode} data.  Otherwise, UTF-8 L{bytes} will be used.
     @type outFile: L{io.IOBase}
 
-    @param rs: The desired record separator.
+    @param rs: The record separator to use.
     @type rs: L{unicode}
 
     @return: A file log observer.
@@ -247,7 +247,7 @@ def jsonFileLogObserver(outFile, rs=u"\x1e"):
 
 
 
-def eventsFromJSONLogFile(inFile):
+def eventsFromJSONLogFile(inFile, rs=None):
     """
     Load events from a file previously saved with L{jsonFileLogObserver}.
 
@@ -255,19 +255,53 @@ def eventsFromJSONLogFile(inFile):
         should be L{unicode} or UTF-8 L{bytes}.
     @type inFile: iterable of lines
 
+    @param rs: The expected record separator.
+        If C{None}, attempt to automatically detect the record separator from
+        one of C{u"\xe1"} or C{u""}.
+    @type rs: L{unicode}
+
     @return: Log events as read from C{inFile}.
     @rtype: iterable of L{dict}
     """
-    def eventFromRecord(record):
-        if record and record[-1] == 10:  # 10 is "\n"
-            try:
-                return eventFromJSON(bytes(record))
-            except ValueError:
+    def eventFromBytearray(record):
+        text = bytes(record)
+        try:
+            return eventFromJSON(text)
+        except ValueError:
+            log.error(
+                u"Unable to read JSON record: {record!r}", record=text
+            )
+
+    if rs is None:
+        first = inFile.read(1).encode("utf-8")
+
+        if first == b"\x1e":
+            # This looks json-text-sequence compliant.
+            rs = first
+        else:
+            # Default to simpler newline-separated stream.
+            rs = b""
+
+    else:
+        rs = rs.encode("utf-8")
+        first = b""
+
+    if rs == b"":
+        rs = b"\n"
+
+        eventFromRecord = eventFromBytearray
+
+    else:
+        def eventFromRecord(record):
+            if record and record[-1] == 10:  # 10 is b"\n"
+                return eventFromBytearray(record)
+            else:
                 log.error(
-                    u"Unable to read JSON record: {record}", record=record
+                    u"Unable to read trucated JSON record: {record!r}",
+                    record=bytes(record)
                 )
 
-    buffer = bytearray()
+    buffer = bytearray(first)
 
     while True:
         newData = inFile.read(4096)
@@ -279,7 +313,7 @@ def eventsFromJSONLogFile(inFile):
             break
 
         buffer += newData.encode("utf-8")
-        records = buffer.split(b"\x1e")
+        records = buffer.split(rs)
 
         for record in records[:-1]:
             event = eventFromRecord(record)

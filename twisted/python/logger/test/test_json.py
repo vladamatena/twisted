@@ -239,7 +239,7 @@ class FileLogObserverTests(TestCase):
             fileHandle.close()
 
 
-    def _observeWrites(self, rs=u"\x1e"):
+    def _observeWrites(self, **kwargs):
         """
         Test that observers created by L{jsonFileLogObserver} with the given
         arguments writes events serialized as JSON text, using the given record
@@ -251,10 +251,7 @@ class FileLogObserverTests(TestCase):
         @param kwargs: Keyword arguments to pass to L{jsonFileLogObserver}.
         @type kwargs: L{dict}
         """
-        if rs is None:
-            kwargs = {}
-        else:
-            kwargs = dict(rs=rs)
+        rs = kwargs.get("rs", u"\x1e")
 
         try:
             fileHandle = StringIO()
@@ -269,7 +266,7 @@ class FileLogObserverTests(TestCase):
             fileHandle.close()
 
 
-    def test_observeWritesRSNL(self):
+    def test_observeWritesRS(self):
         """
         A L{FileLogObserver} created by L{jsonFileLogObserver} writes events
         serialzed as JSON text to a file when it observes events.
@@ -278,7 +275,7 @@ class FileLogObserverTests(TestCase):
         self._observeWrites()
 
 
-    def test_observeWritesNL(self):
+    def test_observeWritesNoRS(self):
         """
         A L{FileLogObserver} created by L{jsonFileLogObserver} writes events
         serialzed as JSON text to a file when it observes events.
@@ -287,20 +284,58 @@ class FileLogObserverTests(TestCase):
         self._observeWrites(rs=u"")
 
 
-    def test_readEvents(self):
+    def _readEvents(self, fileHandle, **kwargs):
+        events = eventsFromJSONLogFile(fileHandle, **kwargs)
+
+        self.assertEquals(next(events), {u"x": 1})
+        self.assertEquals(next(events), {u"y": 2})
+        self.assertRaises(StopIteration, next, events)  # No more events
+
+
+    def test_readEventsAutoRS(self):
         """
-        L{eventsFromJSONLogFile} reads events from a file.
+        L{eventsFromJSONLogFile} reads events from a file and automatically
+        detects use of C{u"\x1e"} as the record separator.
         """
         try:
             fileHandle = StringIO(
                 u'\x1e{"x": 1}\n'
                 u'\x1e{"y": 2}\n'
             )
-            events = eventsFromJSONLogFile(fileHandle)
+            self._readEvents(fileHandle)
 
-            self.assertEquals(next(events), {u"x": 1})
-            self.assertEquals(next(events), {u"y": 2})
-            self.assertRaises(StopIteration, next, events)  # No more events
+        finally:
+            fileHandle.close()
+
+
+    def test_readEventsAutoNoRS(self):
+        """
+        L{eventsFromJSONLogFile} reads events from a file and automatically
+        detects use of C{u""} as the record separator.
+        """
+        try:
+            fileHandle = StringIO(
+                u'{"x": 1}\n'
+                u'{"y": 2}\n'
+            )
+            self._readEvents(fileHandle)
+
+        finally:
+            fileHandle.close()
+
+
+    def test_readEventsExplicitRS(self):
+        """
+        L{eventsFromJSONLogFile} reads events from a file and is told to use
+        a specific record separator.
+        """
+        # Use u"\x08" (backspace)... because that seems weird enough.
+        try:
+            fileHandle = StringIO(
+                u'\x08{"x": 1}\n'
+                u'\x08{"y": 2}\n'
+            )
+            self._readEvents(fileHandle, rs=u"\x08")
 
         finally:
             fileHandle.close()
@@ -312,7 +347,7 @@ class FileLogObserverTests(TestCase):
         """
         try:
             fileHandle = StringIO(
-                u'\x1e{"x": '
+                u'\x1e{"x": 1'
                 u'\x1e{"y": 2}\n'
             )
             events = eventsFromJSONLogFile(fileHandle)
