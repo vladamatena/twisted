@@ -285,6 +285,14 @@ class FileLogObserverTests(TestCase):
 
 
     def _readEvents(self, fileHandle, **kwargs):
+        """
+        Test that L{eventsFromJSONLogFile} reads two pre-defined events from a
+        file: C{{u"x": 1}} and C{{u"y": 2}}.
+
+        @param fileHandle: The file to read from.
+
+        @param kwargs: Keyword arguments to pass to L{eventsFromJSONLogFile}.
+        """
         events = eventsFromJSONLogFile(fileHandle, **kwargs)
 
         self.assertEquals(next(events), {u"x": 1})
