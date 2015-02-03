@@ -285,7 +285,8 @@ def eventsFromJSONLogFile(inFile, recordSeparator=None):
             # This looks json-text-sequence compliant.
             recordSeparator = first
         else:
-            # Default to simpler newline-separated stream.
+            # Default to simpler newline-separated stream, which does not use
+            # a record separator.
             recordSeparator = b""
 
     else:
@@ -293,7 +294,7 @@ def eventsFromJSONLogFile(inFile, recordSeparator=None):
         first = b""
 
     if recordSeparator == b"":
-        recordSeparator = b"\n"
+        recordSeparator = b"\n"  # Split on newlines below
 
         eventFromRecord = eventFromBytearray
 
