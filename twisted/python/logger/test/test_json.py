@@ -350,6 +350,23 @@ class FileLogObserverTests(TestCase):
             fileHandle.close()
 
 
+    def test_readEventsPartialBuffer(self):
+        """
+        L{eventsFromJSONLogFile} handles buffering a partial event.
+        """
+        #
+        try:
+            fileHandle = StringIO(
+                u'\x1e{"x": 1}\n'
+                u'\x1e{"y": 2}\n'
+            )
+            # Use a buffer size smaller than the event text.
+            self._readEvents(fileHandle, bufferSize=1)
+
+        finally:
+            fileHandle.close()
+
+
     def test_readTruncated(self):
         """
         If the JSON text for a record is truncated, skip it.
@@ -397,6 +414,26 @@ class FileLogObserverTests(TestCase):
 
             # The Euro currency sign is u"\u20ac"
             self.assertEquals(next(events), {u"currency": u"\u20ac"})
+            self.assertRaises(StopIteration, next, events)  # No more events
+
+        finally:
+            fileHandle.close()
+
+
+    def test_readTruncatedUnicodeBytes(self):
+        """
+        If the JSON text for a record is truncated in the middle of a two-byte
+        Unicode codepoint, we don't want to see a codec exception and the
+        stream should be read properly when the additional data arrives.
+        """
+        try:
+            # The Euro currency sign is u"\u20ac" and encodes in UTF-8 as three
+            # bytes: b"\xe2\x82\xac".
+            fileHandle = BytesIO(b'\x1e{"x": "\xe2\x82\xac"}\n')
+
+            events = eventsFromJSONLogFile(fileHandle, bufferSize=8)
+
+            self.assertEquals(next(events), {u"x": u"\u20ac"})  # Got unicode
             self.assertRaises(StopIteration, next, events)  # No more events
 
         finally:
