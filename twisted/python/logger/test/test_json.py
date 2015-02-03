@@ -5,7 +5,7 @@
 Tests for L{twisted.python.logger._json}.
 """
 
-from io import StringIO
+from io import StringIO, BytesIO
 
 from zope.interface.verify import verifyObject, BrokenMethodImplementation
 
@@ -361,6 +361,41 @@ class FileLogObserverTests(TestCase):
             events = eventsFromJSONLogFile(fileHandle)
 
             self.assertEquals(next(events), {u"y": 2})
+            self.assertRaises(StopIteration, next, events)  # No more events
+
+        finally:
+            fileHandle.close()
+
+
+    def test_readUnicode(self):
+        """
+        If the file being read from vends L{unicode}, strings decode from JSON
+        as-is.
+        """
+        try:
+            # The Euro currency sign is u"\u20ac"
+            fileHandle = StringIO(u'\x1e{"currency": "\u20ac"}\n')
+            events = eventsFromJSONLogFile(fileHandle)
+
+            self.assertEquals(next(events), {u"currency": u"\u20ac"})
+            self.assertRaises(StopIteration, next, events)  # No more events
+
+        finally:
+            fileHandle.close()
+
+
+    def test_readUTF8Bytes(self):
+        """
+        If the file being read from vends L{bytes}, strings decode from JSON as
+        UTF-8.
+        """
+        try:
+            # The Euro currency sign is b"\xe2\x82\xac" in UTF-8
+            fileHandle = BytesIO(b'\x1e{"currency": "\xe2\x82\xac"}\n')
+            events = eventsFromJSONLogFile(fileHandle)
+
+            # The Euro currency sign is u"\u20ac"
+            self.assertEquals(next(events), {u"currency": u"\u20ac"})
             self.assertRaises(StopIteration, next, events)  # No more events
 
         finally:
