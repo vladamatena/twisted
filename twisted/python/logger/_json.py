@@ -247,7 +247,7 @@ def jsonFileLogObserver(outFile, recordSeparator=u"\x1e"):
 
 
 
-def eventsFromJSONLogFile(inFile, recordSeparator=None):
+def eventsFromJSONLogFile(inFile, recordSeparator=None, bufferSize=4096):
     """
     Load events from a file previously saved with L{jsonFileLogObserver}.
 
@@ -259,6 +259,10 @@ def eventsFromJSONLogFile(inFile, recordSeparator=None):
         If C{None}, attempt to automatically detect the record separator from
         one of C{u"\xe1"} or C{u""}.
     @type recordSeparator: L{unicode}
+
+    @param bufferSize: The size of the read buffer used while reading from
+        C{inFile}.
+    @type bufferSize: integer
 
     @return: Log events as read from C{inFile}.
     @rtype: iterable of L{dict}
@@ -311,7 +315,7 @@ def eventsFromJSONLogFile(inFile, recordSeparator=None):
     buffer = bytearray(first)
 
     while True:
-        newData = inFile.read(4096)
+        newData = inFile.read(bufferSize)
 
         if not newData:
             event = eventFromRecord(buffer)
