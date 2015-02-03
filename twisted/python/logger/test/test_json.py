@@ -354,7 +354,6 @@ class FileLogObserverTests(TestCase):
         """
         L{eventsFromJSONLogFile} handles buffering a partial event.
         """
-        #
         try:
             fileHandle = StringIO(
                 u'\x1e{"x": 1}\n'
@@ -445,7 +444,7 @@ class FileLogObserverTests(TestCase):
         record.
         """
         try:
-            # b"\xe2\xac" is bogus
+            # The string b"\xe2\xac" is bogus
             fileHandle = BytesIO(
                 b'\x1e{"x": "\xe2\xac"}\n'
                 b'\x1e{"y": 2}\n'
