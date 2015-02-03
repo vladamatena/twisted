@@ -274,7 +274,15 @@ def eventsFromJSONLogFile(inFile, recordSeparator=None, bufferSize=4096):
             return s.encode("utf-8")
 
     def eventFromBytearray(record):
-        text = bytes(record).decode("utf-8")
+        try:
+            text = bytes(record).decode("utf-8")
+        except UnicodeDecodeError:
+            log.error(
+                u"Unable to decode UTF-8 for JSON record: {record!r}",
+                record=bytes(record)
+            )
+            return None
+
         try:
             return eventFromJSON(text)
         except ValueError:
