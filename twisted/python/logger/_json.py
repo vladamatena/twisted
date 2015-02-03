@@ -263,6 +263,12 @@ def eventsFromJSONLogFile(inFile, rs=None):
     @return: Log events as read from C{inFile}.
     @rtype: iterable of L{dict}
     """
+    def asBytes(s):
+        if type(s) is bytes:
+            return s
+        else:
+            return s.encode("utf-8")
+
     def eventFromBytearray(record):
         text = bytes(record).decode("utf-8")
         try:
@@ -273,7 +279,7 @@ def eventsFromJSONLogFile(inFile, rs=None):
             )
 
     if rs is None:
-        first = inFile.read(1).encode("utf-8")
+        first = asBytes(inFile.read(1))
 
         if first == b"\x1e":
             # This looks json-text-sequence compliant.
@@ -283,7 +289,7 @@ def eventsFromJSONLogFile(inFile, rs=None):
             rs = b""
 
     else:
-        rs = rs.encode("utf-8")
+        rs = asBytes(rs)
         first = b""
 
     if rs == b"":
@@ -312,7 +318,7 @@ def eventsFromJSONLogFile(inFile, rs=None):
                 yield event
             break
 
-        buffer += newData.encode("utf-8")
+        buffer += asBytes(newData)
         records = buffer.split(rs)
 
         for record in records[:-1]:
