@@ -216,7 +216,7 @@ def eventFromJSON(eventText):
 
 
 
-def jsonFileLogObserver(outFile, rs=u"\x1e"):
+def jsonFileLogObserver(outFile, recordSeparator=u"\x1e"):
     """
     Create a L{FileLogObserver} that emits JSON-serialized events to a
     specified (writable) file-like object.
@@ -234,20 +234,20 @@ def jsonFileLogObserver(outFile, rs=u"\x1e"):
         accepts L{unicode} data.  Otherwise, UTF-8 L{bytes} will be used.
     @type outFile: L{io.IOBase}
 
-    @param rs: The record separator to use.
-    @type rs: L{unicode}
+    @param recordSeparator: The record separator to use.
+    @type recordSeparator: L{unicode}
 
     @return: A file log observer.
     @rtype: L{FileLogObserver}
     """
     return FileLogObserver(
         outFile,
-        lambda event: u"{0}{1}\n".format(rs, eventAsJSON(event))
+        lambda event: u"{0}{1}\n".format(recordSeparator, eventAsJSON(event))
     )
 
 
 
-def eventsFromJSONLogFile(inFile, rs=None):
+def eventsFromJSONLogFile(inFile, recordSeparator=None):
     """
     Load events from a file previously saved with L{jsonFileLogObserver}.
 
@@ -255,10 +255,10 @@ def eventsFromJSONLogFile(inFile, rs=None):
         should be L{unicode} or UTF-8 L{bytes}.
     @type inFile: iterable of lines
 
-    @param rs: The expected record separator.
+    @param recordSeparator: The expected record separator.
         If C{None}, attempt to automatically detect the record separator from
         one of C{u"\xe1"} or C{u""}.
-    @type rs: L{unicode}
+    @type recordSeparator: L{unicode}
 
     @return: Log events as read from C{inFile}.
     @rtype: iterable of L{dict}
@@ -278,22 +278,22 @@ def eventsFromJSONLogFile(inFile, rs=None):
                 u"Unable to read JSON record: {record!r}", record=text
             )
 
-    if rs is None:
+    if recordSeparator is None:
         first = asBytes(inFile.read(1))
 
         if first == b"\x1e":
             # This looks json-text-sequence compliant.
-            rs = first
+            recordSeparator = first
         else:
             # Default to simpler newline-separated stream.
-            rs = b""
+            recordSeparator = b""
 
     else:
-        rs = asBytes(rs)
+        recordSeparator = asBytes(recordSeparator)
         first = b""
 
-    if rs == b"":
-        rs = b"\n"
+    if recordSeparator == b"":
+        recordSeparator = b"\n"
 
         eventFromRecord = eventFromBytearray
 
@@ -319,7 +319,7 @@ def eventsFromJSONLogFile(inFile, rs=None):
             break
 
         buffer += asBytes(newData)
-        records = buffer.split(rs)
+        records = buffer.split(recordSeparator)
 
         for record in records[:-1]:
             event = eventFromRecord(record)

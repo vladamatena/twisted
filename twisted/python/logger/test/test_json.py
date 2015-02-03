@@ -245,13 +245,13 @@ class FileLogObserverTests(TestCase):
         arguments writes events serialized as JSON text, using the given record
         sparator.
 
-        @param rs: A record separator.
-        @type rs: L{unicode}
+        @param recordSeparator: A record separator.
+        @type recordSeparator: L{unicode}
 
         @param kwargs: Keyword arguments to pass to L{jsonFileLogObserver}.
         @type kwargs: L{dict}
         """
-        rs = kwargs.get("rs", u"\x1e")
+        recordSeparator = kwargs.get("recordSeparator", u"\x1e")
 
         try:
             fileHandle = StringIO()
@@ -259,7 +259,8 @@ class FileLogObserverTests(TestCase):
             event = dict(x=1)
             observer(event)
             self.assertEquals(
-                fileHandle.getvalue(), u'{0}{{"x": 1}}\n'.format(rs)
+                fileHandle.getvalue(),
+                u'{0}{{"x": 1}}\n'.format(recordSeparator)
             )
 
         finally:
@@ -281,7 +282,7 @@ class FileLogObserverTests(TestCase):
         serialzed as JSON text to a file when it observes events.
         This test sets the record separator to C{u""}.
         """
-        self._observeWrites(rs=u"")
+        self._observeWrites(recordSeparator=u"")
 
 
     def _readEvents(self, fileHandle, **kwargs):
@@ -343,7 +344,7 @@ class FileLogObserverTests(TestCase):
                 u'\x08{"x": 1}\n'
                 u'\x08{"y": 2}\n'
             )
-            self._readEvents(fileHandle, rs=u"\x08")
+            self._readEvents(fileHandle, recordSeparator=u"\x08")
 
         finally:
             fileHandle.close()
