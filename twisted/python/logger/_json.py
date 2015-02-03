@@ -289,6 +289,7 @@ def eventsFromJSONLogFile(inFile, recordSeparator=None, bufferSize=4096):
             log.error(
                 u"Unable to read JSON record: {record!r}", record=text
             )
+            return None
 
     if recordSeparator is None:
         first = asBytes(inFile.read(1))
@@ -312,13 +313,14 @@ def eventsFromJSONLogFile(inFile, recordSeparator=None, bufferSize=4096):
 
     else:
         def eventFromRecord(record):
-            if record and record[-1] == 10:  # 10 is b"\n"
+            if record[-1] == 10:  # 10 is b"\n"
                 return eventFromBytearray(record)
             else:
                 log.error(
-                    u"Unable to read trucated JSON record: {record!r}",
+                    u"Unable to read truncated JSON record: {record!r}",
                     record=bytes(record)
                 )
+            return None
 
     buffer = bytearray(first)
 
@@ -326,17 +328,19 @@ def eventsFromJSONLogFile(inFile, recordSeparator=None, bufferSize=4096):
         newData = inFile.read(bufferSize)
 
         if not newData:
-            event = eventFromRecord(buffer)
-            if event is not None:
-                yield event
+            if len(buffer) > 0:
+                event = eventFromRecord(buffer)
+                if event is not None:
+                    yield event
             break
 
         buffer += asBytes(newData)
         records = buffer.split(recordSeparator)
 
         for record in records[:-1]:
-            event = eventFromRecord(record)
-            if event is not None:
-                yield event
+            if len(record) > 0:
+                event = eventFromRecord(record)
+                if event is not None:
+                    yield event
 
         buffer = records[-1]
