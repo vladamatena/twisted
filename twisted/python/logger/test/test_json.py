@@ -420,7 +420,7 @@ class FileLogObserverTests(TestCase):
             fileHandle.close()
 
 
-    def test_readTruncatedUnicodeBytes(self):
+    def test_readTruncatedUTF8Bytes(self):
         """
         If the JSON text for a record is truncated in the middle of a two-byte
         Unicode codepoint, we don't want to see a codec exception and the
@@ -430,7 +430,6 @@ class FileLogObserverTests(TestCase):
             # The Euro currency sign is u"\u20ac" and encodes in UTF-8 as three
             # bytes: b"\xe2\x82\xac".
             fileHandle = BytesIO(b'\x1e{"x": "\xe2\x82\xac"}\n')
-
             events = eventsFromJSONLogFile(fileHandle, bufferSize=8)
 
             self.assertEquals(next(events), {u"x": u"\u20ac"})  # Got unicode
@@ -440,7 +439,27 @@ class FileLogObserverTests(TestCase):
             fileHandle.close()
 
 
-    def test_readInvalid(self):
+    def test_readInvalidUTF8Bytes(self):
+        """
+        If the JSON text for a record contains invalid UTF-8 text, ignore that
+        record.
+        """
+        try:
+            # b"\xe2\xac" is bogus
+            fileHandle = BytesIO(
+                b'\x1e{"x": "\xe2\xac"}\n'
+                b'\x1e{"y": 2}\n'
+            )
+            events = eventsFromJSONLogFile(fileHandle)
+
+            self.assertEquals(next(events), {u"y": 2})
+            self.assertRaises(StopIteration, next, events)  # No more events
+
+        finally:
+            fileHandle.close()
+
+
+    def test_readInvalidJSON(self):
         """
         If the JSON text for a record is invalid, skip it.
         """
