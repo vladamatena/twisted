@@ -220,12 +220,13 @@ class SaveLoadTests(TestCase):
 
 class FileLogObserverTests(TestCase):
     """
-    Tests for L{FileLogObserver}.
+    Tests for L{jsonFileLogObserver}.
     """
 
     def test_interface(self):
         """
-        L{FileLogObserver} is an L{ILogObserver}.
+        A L{FileLogObserver} returned by L{jsonFileLogObserver} is an
+        L{ILogObserver}.
         """
         try:
             fileHandle = StringIO()
@@ -284,6 +285,12 @@ class FileLogObserverTests(TestCase):
         """
         self._observeWrites(recordSeparator=u"")
 
+
+
+class LogFileReaderTests(TestCase):
+    """
+    Tests for L{eventsFromJSONLogFile}.
+    """
 
     def _readEvents(self, fileHandle, **kwargs):
         """
@@ -494,8 +501,8 @@ class FileLogObserverTests(TestCase):
 
     def test_roundTrip(self):
         """
-        Data written by L{FileLogObserver} and read by L{eventsFromJSONLogFile}
-        is reconstructed properly.
+        Data written by a L{FileLogObserver} returned by L{jsonFileLogObserver}
+        and read by L{eventsFromJSONLogFile} is reconstructed properly.
         """
         try:
             event = dict(x=1)

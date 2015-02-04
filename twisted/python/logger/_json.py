@@ -250,6 +250,7 @@ def jsonFileLogObserver(outFile, recordSeparator=u"\x1e"):
 def eventsFromJSONLogFile(inFile, recordSeparator=None, bufferSize=4096):
     """
     Load events from a file previously saved with L{jsonFileLogObserver}.
+    Event records that are truncated or otherwise unreadable are ignored.
 
     @param inFile: A (readable) file-like object.  Data read from C{inFile}
         should be L{unicode} or UTF-8 L{bytes}.
@@ -287,7 +288,8 @@ def eventsFromJSONLogFile(inFile, recordSeparator=None, bufferSize=4096):
             return eventFromJSON(text)
         except ValueError:
             log.error(
-                u"Unable to read JSON record: {record!r}", record=text
+                u"Unable to read JSON record: {record!r}",
+                record=bytes(record)
             )
             return None
 
