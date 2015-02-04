@@ -315,7 +315,7 @@ def eventsFromJSONLogFile(inFile, recordSeparator=None, bufferSize=4096):
 
     else:
         def eventFromRecord(record):
-            if record[-1] == 10:  # 10 is b"\n"
+            if record[-1] == ord("\n"):
                 return eventFromBytearray(record)
             else:
                 log.error(
