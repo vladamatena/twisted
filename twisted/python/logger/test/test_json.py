@@ -242,11 +242,11 @@ class FileLogObserverTests(TestCase):
             fileHandle.close()
 
 
-    def _observeWrites(self, **kwargs):
+    def assertObserverWritesJSON(self, **kwargs):
         """
-        Test that observers created by L{jsonFileLogObserver} with the given
-        arguments writes events serialized as JSON text, using the given record
-        sparator.
+        Asserts that an observer created by L{jsonFileLogObserver} with the
+        given arguments writes events serialized as JSON text, using the given
+        record separator.
 
         @param recordSeparator: A record separator.
         @type recordSeparator: L{unicode}
@@ -270,22 +270,22 @@ class FileLogObserverTests(TestCase):
             fileHandle.close()
 
 
-    def test_observeWritesRS(self):
+    def test_observeWritesDefaultRecordSeparator(self):
         """
         A L{FileLogObserver} created by L{jsonFileLogObserver} writes events
         serialzed as JSON text to a file when it observes events.
         By default, the record separator is C{u"\x1e"}.
         """
-        self._observeWrites()
+        self.assertObserverWritesJSON()
 
 
-    def test_observeWritesNoRS(self):
+    def test_observeWritesEmptyRecordSeparator(self):
         """
         A L{FileLogObserver} created by L{jsonFileLogObserver} writes events
         serialzed as JSON text to a file when it observes events.
         This test sets the record separator to C{u""}.
         """
-        self._observeWrites(recordSeparator=u"")
+        self.assertObserverWritesJSON(recordSeparator=u"")
 
 
 
@@ -329,7 +329,7 @@ class LogFileReaderTests(TestCase):
         self.assertRaises(StopIteration, next, events)  # No more events
 
 
-    def test_readEventsAutoRS(self):
+    def test_readEventsAutoWithRecordSeparator(self):
         """
         L{eventsFromJSONLogFile} reads events from a file and automatically
         detects use of C{u"\x1e"} as the record separator.
@@ -346,7 +346,7 @@ class LogFileReaderTests(TestCase):
             fileHandle.close()
 
 
-    def test_readEventsAutoNoRS(self):
+    def test_readEventsAutoEmptyRecordSeparator(self):
         """
         L{eventsFromJSONLogFile} reads events from a file and automatically
         detects use of C{u""} as the record separator.
@@ -363,7 +363,7 @@ class LogFileReaderTests(TestCase):
             fileHandle.close()
 
 
-    def test_readEventsExplicitRS(self):
+    def test_readEventsExplicitRecordSeparator(self):
         """
         L{eventsFromJSONLogFile} reads events from a file and is told to use
         a specific record separator.
