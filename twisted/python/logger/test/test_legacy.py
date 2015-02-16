@@ -137,10 +137,10 @@ class LegacyLogObserverWrapperTests(unittest.TestCase):
 
     def test_pythonLogLevel(self):
         """
-        Python log level is added.
+        Python log level is not added.
         """
         event = self.forwardAndVerify(dict(log_level=LogLevel.info))
-        self.assertEquals(event["logLevel"], py_logging.INFO)
+        self.assertNotIn("logLevel", event)
 
 
     def test_stringPythonLogLevel(self):

@@ -11,9 +11,7 @@ from zope.interface import implementer
 from ._levels import LogLevel
 from ._format import formatEvent
 from ._observer import ILogObserver
-from ._stdlib import (
-    toStdlibLogLevelMapping, fromStdlibLogLevelMapping, StringifiableFromEvent
-)
+from ._stdlib import fromStdlibLogLevelMapping, StringifiableFromEvent
 
 
 
@@ -51,13 +49,6 @@ class LegacyLogObserverWrapper(object):
         @param event: an event
         @type event: L{dict}
         """
-
-        # Twisted's logging supports indicating a python log level, so let's
-        # provide the equivalent to our logging levels.
-        if "logLevel" not in event:
-            level = event.get("log_level", None)
-            if level in toStdlibLogLevelMapping:
-                event["logLevel"] = toStdlibLogLevelMapping[level]
 
         # The "message" key is required by textFromEventDict()
         if "message" not in event:
