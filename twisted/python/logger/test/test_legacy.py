@@ -143,6 +143,20 @@ class LegacyLogObserverWrapperTests(unittest.TestCase):
         self.assertEquals(event["logLevel"], py_logging.INFO)
 
 
+    def test_stringPythonLogLevel(self):
+        """
+        If a stdlib log level was provided as a string (eg. C{"WARNING"}) in
+        the legacy "logLevel" key, it should not get converted to a number.
+        The documentation suggested that numerical values should be used but
+        this was not a requirement.
+        """
+        event = self.forwardAndVerify(dict(
+            log_level=LogLevel.warn,
+            logLevel="WARNING",  # (py_logging.WARNING is 30)
+        ))
+        self.assertEquals(event["logLevel"], "WARNING")
+
+
     def test_message(self):
         """
         C{"message"} key is added.
