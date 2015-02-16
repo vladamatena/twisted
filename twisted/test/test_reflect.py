@@ -878,14 +878,14 @@ class GetClass(unittest.TestCase):
     else:
         oldClassNames = ['class', 'classobj']
 
-    def test_old(self):
+    def testOld(self):
         class OldClass:
             pass
         old = OldClass()
         self.assertIn(reflect.getClass(OldClass).__name__, self.oldClassNames)
         self.assertEqual(reflect.getClass(old).__name__, 'OldClass')
 
-    def test_new(self):
+    def testNew(self):
         class NewClass(object):
             pass
         new = NewClass()

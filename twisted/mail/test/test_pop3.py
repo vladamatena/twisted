@@ -33,7 +33,7 @@ import twisted.cred.credentials
 from twisted.test.proto_helpers import LineSendingProtocol
 
 
-class UtilityTests(unittest.TestCase):
+class UtilityTestCase(unittest.TestCase):
     """
     Test the various helper functions and classes used by the POP3 server
     protocol implementation.
@@ -207,7 +207,7 @@ class MyPOP3Downloader(pop3.POP3Client):
             raise AssertionError, 'code is ' + line
 
 
-class POP3Tests(unittest.TestCase):
+class POP3TestCase(unittest.TestCase):
 
     message = '''\
 Subject: urgent
@@ -300,7 +300,7 @@ class DummyMailbox(pop3.Mailbox):
         self.messages[i] = ''
 
 
-class AnotherPOP3Tests(unittest.TestCase):
+class AnotherPOP3TestCase(unittest.TestCase):
 
     def runTest(self, lines, expectedOutput):
         dummy = DummyPOP3()
@@ -443,7 +443,7 @@ class TestMailbox:
     messageExpiration = 25
 
 
-class CapabilityTests(unittest.TestCase):
+class CapabilityTestCase(unittest.TestCase):
     def setUp(self):
         s = StringIO.StringIO()
         p = pop3.POP3()
@@ -498,7 +498,7 @@ class CapabilityTests(unittest.TestCase):
 
 
 
-class GlobalCapabilitiesTests(unittest.TestCase):
+class GlobalCapabilitiesTestCase(unittest.TestCase):
     def setUp(self):
         s = StringIO.StringIO()
         p = pop3.POP3()
@@ -539,7 +539,7 @@ class TestRealm:
 
 
 
-class SASLTests(unittest.TestCase):
+class SASLTestCase(unittest.TestCase):
     def testValidLogin(self):
         p = pop3.POP3()
         p.factory = TestServerFactory()
@@ -933,7 +933,7 @@ _getUidlSuppression = util.suppress(
     message=_getUidlDeprecation,
     category=PendingDeprecationWarning)
 
-class IndexErrorCommandTests(CommandMixin, unittest.TestCase):
+class IndexErrorCommandTestCase(CommandMixin, unittest.TestCase):
     """
     Run all of the command tests against a mailbox which raises IndexError
     when an out of bounds request is made.  This behavior will be deprecated
@@ -963,7 +963,7 @@ class IndexErrorCommandTests(CommandMixin, unittest.TestCase):
 
 
 
-class ValueErrorCommandTests(CommandMixin, unittest.TestCase):
+class ValueErrorCommandTestCase(CommandMixin, unittest.TestCase):
     """
     Run all of the command tests against a mailbox which raises ValueError
     when an out of bounds request is made.  This is the correct behavior and
@@ -985,18 +985,18 @@ class SyncDeferredMailbox(DummyMailbox):
 
 
 
-class IndexErrorSyncDeferredCommandTests(IndexErrorCommandTests):
+class IndexErrorSyncDeferredCommandTestCase(IndexErrorCommandTestCase):
     """
-    Run all of the L{IndexErrorCommandTests} tests with a
+    Run all of the L{IndexErrorCommandTestCase} tests with a
     synchronous-Deferred returning IMailbox implementation.
     """
     mailboxType = SyncDeferredMailbox
 
 
 
-class ValueErrorSyncDeferredCommandTests(ValueErrorCommandTests):
+class ValueErrorSyncDeferredCommandTestCase(ValueErrorCommandTestCase):
     """
-    Run all of the L{ValueErrorCommandTests} tests with a
+    Run all of the L{ValueErrorCommandTestCase} tests with a
     synchronous-Deferred returning IMailbox implementation.
     """
     mailboxType = SyncDeferredMailbox
@@ -1021,9 +1021,9 @@ class AsyncDeferredMailbox(DummyMailbox):
 
 
 
-class IndexErrorAsyncDeferredCommandTests(IndexErrorCommandTests):
+class IndexErrorAsyncDeferredCommandTestCase(IndexErrorCommandTestCase):
     """
-    Run all of the L{IndexErrorCommandTests} tests with an asynchronous-Deferred
+    Run all of the L{IndexErrorCommandTestCase} tests with an asynchronous-Deferred
     returning IMailbox implementation.
     """
     mailboxType = AsyncDeferredMailbox
@@ -1035,13 +1035,13 @@ class IndexErrorAsyncDeferredCommandTests(IndexErrorCommandTests):
         while self.pop3Server.mbox.waiting:
             d, a = self.pop3Server.mbox.waiting.pop()
             d.callback(a)
-        IndexErrorCommandTests._flush(self)
+        IndexErrorCommandTestCase._flush(self)
 
 
 
-class ValueErrorAsyncDeferredCommandTests(ValueErrorCommandTests):
+class ValueErrorAsyncDeferredCommandTestCase(ValueErrorCommandTestCase):
     """
-    Run all of the L{IndexErrorCommandTests} tests with an asynchronous-Deferred
+    Run all of the L{IndexErrorCommandTestCase} tests with an asynchronous-Deferred
     returning IMailbox implementation.
     """
     mailboxType = AsyncDeferredMailbox
@@ -1053,9 +1053,9 @@ class ValueErrorAsyncDeferredCommandTests(ValueErrorCommandTests):
         while self.pop3Server.mbox.waiting:
             d, a = self.pop3Server.mbox.waiting.pop()
             d.callback(a)
-        ValueErrorCommandTests._flush(self)
+        ValueErrorCommandTestCase._flush(self)
 
-class POP3MiscTests(unittest.TestCase):
+class POP3MiscTestCase(unittest.TestCase):
     """
     Miscellaneous tests more to do with module/package structure than
     anything to do with the Post Office Protocol.

@@ -8,7 +8,7 @@ HTTP errors.
 from twisted.trial import unittest
 from twisted.web import error
 
-class ErrorTests(unittest.TestCase):
+class ErrorTestCase(unittest.TestCase):
     """
     Tests for how L{Error} attributes are initialized.
     """
@@ -41,7 +41,7 @@ class ErrorTests(unittest.TestCase):
 
 
 
-class PageRedirectTests(unittest.TestCase):
+class PageRedirectTestCase(unittest.TestCase):
     """
     Tests for how L{PageRedirect} attributes are initialized.
     """
@@ -95,7 +95,7 @@ class PageRedirectTests(unittest.TestCase):
 
 
 
-class InfiniteRedirectionTests(unittest.TestCase):
+class InfiniteRedirectionTestCase(unittest.TestCase):
     """
     Tests for how L{InfiniteRedirection} attributes are initialized.
     """

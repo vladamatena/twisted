@@ -756,7 +756,7 @@ class IAgentEndpointFactory(Interface):
     used for outgoing Agent requests. This is useful in the case of needing to
     proxy outgoing connections, or to otherwise vary the transport used.
 
-    @since: 15.0
+    @since: 14.1
     """
 
     def endpointForURI(uri):

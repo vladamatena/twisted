@@ -67,7 +67,7 @@ class ManholeProtocolTests(unittest.TestCase):
 
 
 
-class WriterTests(unittest.TestCase):
+class WriterTestCase(unittest.TestCase):
     def testInteger(self):
         manhole.lastColorizedLine("1")
 
@@ -349,14 +349,14 @@ class ManholeLoopbackMixin:
              "Deferred #0 called back: 'Hi!'",
              ">>> "])
 
-class ManholeLoopbackTelnetTests(_TelnetMixin, unittest.TestCase, ManholeLoopbackMixin):
+class ManholeLoopbackTelnet(_TelnetMixin, unittest.TestCase, ManholeLoopbackMixin):
     pass
 
-class ManholeLoopbackSSHTests(_SSHMixin, unittest.TestCase, ManholeLoopbackMixin):
+class ManholeLoopbackSSH(_SSHMixin, unittest.TestCase, ManholeLoopbackMixin):
     if ssh is None:
         skip = "Crypto requirements missing, can't run manhole tests over ssh"
 
-class ManholeLoopbackStdioTests(_StdioMixin, unittest.TestCase, ManholeLoopbackMixin):
+class ManholeLoopbackStdio(_StdioMixin, unittest.TestCase, ManholeLoopbackMixin):
     if stdio is None:
         skip = "Terminal requirements missing, can't run manhole tests over stdio"
     else:

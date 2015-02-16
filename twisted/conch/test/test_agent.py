@@ -72,7 +72,7 @@ class AgentTestBase(unittest.TestCase):
 
 
 
-class ServerProtocolContractWithFactoryTests(AgentTestBase):
+class TestServerProtocolContractWithFactory(AgentTestBase):
     """
     The server protocol is stateful and so uses its factory to track state
     across requests.  This test asserts that the protocol raises if its factory
@@ -87,7 +87,7 @@ class ServerProtocolContractWithFactoryTests(AgentTestBase):
 
 
 
-class UnimplementedVersionOneServerTests(AgentTestBase):
+class TestUnimplementedVersionOneServer(AgentTestBase):
     """
     Tests for methods with no-op implementations on the server. We need these
     for clients, such as openssh, that try v1 methods before going to v2.
@@ -144,7 +144,7 @@ if agent is not None:
 
 
 
-class ClientWithBrokenServerTests(AgentTestBase):
+class TestClientWithBrokenServer(AgentTestBase):
     """
     verify error handling code in the client using a misbehaving server
     """
@@ -181,7 +181,7 @@ class ClientWithBrokenServerTests(AgentTestBase):
 
 
 
-class AgentKeyAdditionTests(AgentTestBase):
+class TestAgentKeyAddition(AgentTestBase):
     """
     Test adding different flavors of keys to an agent.
     """
@@ -261,7 +261,7 @@ class AgentKeyAdditionTests(AgentTestBase):
 
 
 
-class AgentClientFailureTests(AgentTestBase):
+class TestAgentClientFailure(AgentTestBase):
     def test_agentFailure(self):
         """
         verify that the client raises ConchError on AGENT_FAILURE
@@ -272,7 +272,7 @@ class AgentClientFailureTests(AgentTestBase):
 
 
 
-class AgentIdentityRequestsTests(AgentTestBase):
+class TestAgentIdentityRequests(AgentTestBase):
     """
     Test operations against a server with identities already loaded.
     """
@@ -345,7 +345,7 @@ class AgentIdentityRequestsTests(AgentTestBase):
 
 
 
-class AgentKeyRemovalTests(AgentTestBase):
+class TestAgentKeyRemoval(AgentTestBase):
     """
     Test support for removing keys in a remote server.
     """

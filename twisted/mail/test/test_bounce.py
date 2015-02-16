@@ -9,7 +9,7 @@ from twisted.trial import unittest
 from twisted.mail import bounce
 import rfc822, cStringIO
 
-class BounceTests(unittest.TestCase):
+class BounceTestCase(unittest.TestCase):
     """
     testcases for bounce message generation
     """

@@ -6,6 +6,7 @@
 Developer Guides
 ========================
 
+
 .. toctree::
    :hidden:
 
@@ -13,7 +14,19 @@ Developer Guides
    ircclient
 
 
+
+
+
+
 - :doc:`Twisted IM <im>`
 - IRC
 
+
+
   - :doc:`Using the Twisted Words IRC client <ircclient>`
+
+
+
+
+
+

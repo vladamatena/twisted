@@ -11,7 +11,6 @@ from twisted.trial import unittest
 from twisted.internet import protocol, reactor, interfaces, defer
 from twisted.internet.error import ConnectionDone
 from twisted.protocols import basic
-from twisted.python.reflect import requireModule
 from twisted.python.runtime import platform
 from twisted.test.test_tcp import ProperlyCloseFilesMixin
 
@@ -324,7 +323,9 @@ class StolenTCPTestCase(ProperlyCloseFilesMixin, unittest.TestCase):
 
         # So figure out if twisted.protocols.tls is in use.  If it can be
         # imported, it should be.
-        if requireModule('twisted.protocols.tls') is None:
+        try:
+            import twisted.protocols.tls
+        except ImportError:
             # It isn't available, so we expect WSAENOTSOCK if we're on Windows.
             if platform.getType() == 'win32':
                 return errno.WSAENOTSOCK
@@ -504,7 +505,7 @@ class ConnectionLostTestCase(unittest.TestCase, ContextGeneratingMixin):
         clientProtocolFactory = protocol.ClientFactory()
         clientProtocolFactory.protocol = ImmediatelyDisconnectingProtocol
         clientProtocolFactory.connectionDisconnected = defer.Deferred()
-        reactor.connectSSL('127.0.0.1',
+        clientConnector = reactor.connectSSL('127.0.0.1',
             serverPort.getHost().port, clientProtocolFactory, self.clientCtxFactory)
 
         return clientProtocolFactory.connectionDisconnected.addCallback(
@@ -552,7 +553,7 @@ class ConnectionLostTestCase(unittest.TestCase, ContextGeneratingMixin):
         clientProtocol = CloseAfterHandshake()
         clientProtocolFactory = protocol.ClientFactory()
         clientProtocolFactory.protocol = lambda: clientProtocol
-        reactor.connectSSL('127.0.0.1',
+        clientConnector = reactor.connectSSL('127.0.0.1',
             serverPort.getHost().port, clientProtocolFactory, self.clientCtxFactory)
 
         def checkResult(failure):
@@ -588,7 +589,7 @@ class ConnectionLostTestCase(unittest.TestCase, ContextGeneratingMixin):
         clientProtocol.connectionLost = clientConnLost.callback
         clientProtocolFactory = protocol.ClientFactory()
         clientProtocolFactory.protocol = lambda: clientProtocol
-        reactor.connectSSL('127.0.0.1',
+        clientConnector = reactor.connectSSL('127.0.0.1',
             serverPort.getHost().port, clientProtocolFactory, self.clientCtxFactory)
 
         dl = defer.DeferredList([serverConnLost, clientConnLost], consumeErrors=True)

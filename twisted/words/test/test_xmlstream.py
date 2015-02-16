@@ -10,7 +10,7 @@ from twisted.python import failure
 from twisted.trial import unittest
 from twisted.words.xish import domish, utility, xmlstream
 
-class XmlStreamTests(unittest.TestCase):
+class XmlStreamTest(unittest.TestCase):
     def setUp(self):
         self.connectionLostMsg = "no reason"
         self.outlist = []
@@ -119,7 +119,7 @@ class DummyProtocol(protocol.Protocol, utility.EventDispatcher):
 
 
 
-class BootstrapMixinTests(unittest.TestCase):
+class BootstrapMixinTest(unittest.TestCase):
     """
     Tests for L{xmlstream.BootstrapMixin}.
 
@@ -168,7 +168,7 @@ class BootstrapMixinTests(unittest.TestCase):
 
 
 
-class GenericXmlStreamFactoryTestsMixin(BootstrapMixinTests):
+class GenericXmlStreamFactoryTestsMixin(BootstrapMixinTest):
     """
     Generic tests for L{XmlStream} factories.
     """
@@ -203,7 +203,7 @@ class GenericXmlStreamFactoryTestsMixin(BootstrapMixinTests):
 
 
 
-class XmlStreamFactoryMixinTests(GenericXmlStreamFactoryTestsMixin):
+class XmlStreamFactoryMixinTest(GenericXmlStreamFactoryTestsMixin):
     """
     Tests for L{xmlstream.XmlStreamFactoryMixin}.
     """

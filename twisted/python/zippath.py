@@ -1,4 +1,4 @@
-# -*- test-case-name: twisted.test.test_paths.ZipFilePathTests -*-
+# -*- test-case-name: twisted.test.test_paths.ZipFilePathTestCase -*-
 # Copyright (c) Twisted Matrix Laboratories.
 # See LICENSE for details.
 

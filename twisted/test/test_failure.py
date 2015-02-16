@@ -217,9 +217,6 @@ class FailureTestCase(SynchronousTestCase):
         """
         if captureVars:
             exampleLocalVar = 'xyz'
-            # Silence the linter as this variable is checked via
-            # the traceback.
-            exampleLocalVar
 
         f = getDivisionFailure(captureVars=captureVars)
         out = NativeStringIO()
@@ -275,9 +272,6 @@ class FailureTestCase(SynchronousTestCase):
         """
         if captureVars:
             exampleLocalVar = 'abcde'
-            # Silence the linter as this variable is checked via
-            # the traceback.
-            exampleLocalVar
 
         f = getDivisionFailure()
         out = NativeStringIO()
@@ -325,9 +319,6 @@ class FailureTestCase(SynchronousTestCase):
         """
         if captureVars:
             exampleLocalVar = 'xyzzy'
-            # Silence the linter as this variable is checked via
-            # the traceback.
-            exampleLocalVar
 
         f = getDivisionFailure(captureVars=captureVars)
         out = NativeStringIO()
@@ -419,7 +410,7 @@ class FailureTestCase(SynchronousTestCase):
             detail='noisia')
 
 
-    def test_ExplictPass(self):
+    def testExplictPass(self):
         e = RuntimeError()
         f = failure.Failure(e)
         f.trap(RuntimeError)
@@ -437,21 +428,21 @@ class FailureTestCase(SynchronousTestCase):
                 "f.raiseException() didn't raise ZeroDivisionError!?")
 
 
-    def test_RaiseExceptionWithTB(self):
+    def testRaiseExceptionWithTB(self):
         f = getDivisionFailure()
         innerline = self._getInnermostFrameLine(f)
         self.assertEqual(innerline, '1/0')
 
 
-    def test_LackOfTB(self):
+    def testLackOfTB(self):
         f = getDivisionFailure()
         f.cleanFailure()
         innerline = self._getInnermostFrameLine(f)
         self.assertEqual(innerline, '1/0')
 
-    test_LackOfTB.todo = "the traceback is not preserved, exarkun said he'll try to fix this! god knows how"
+    testLackOfTB.todo = "the traceback is not preserved, exarkun said he'll try to fix this! god knows how"
     if _PY3:
-        del test_LackOfTB # fix in ticket #6008
+        del testLackOfTB # fix in ticket #6008
 
 
     def test_stringExceptionConstruction(self):
@@ -463,7 +454,7 @@ class FailureTestCase(SynchronousTestCase):
         self.assertIn("Strings are not supported by Failure", str(exc))
 
 
-    def test_ConstructionFails(self):
+    def testConstructionFails(self):
         """
         Creating a Failure with no arguments causes it to try to discover the
         current interpreter exception state.  If no such state exists, creating

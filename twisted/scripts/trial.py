@@ -18,7 +18,6 @@ from twisted.internet import defer
 from twisted.application import app
 from twisted.python import usage, reflect, failure
 from twisted.python.filepath import FilePath
-from twisted.python.reflect import namedModule
 from twisted import plugin
 from twisted.python.util import spewer
 from twisted.trial import runner, itrial, reporter
@@ -524,7 +523,7 @@ def _wrappedPdb():
 
     dbg = pdb.Pdb()
     try:
-        namedModule('readline')
+        import readline
     except ImportError:
         print("readline module not available")
         sys.exc_clear()

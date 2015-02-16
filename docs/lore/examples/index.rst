@@ -6,5 +6,15 @@
 Examples
 ========
 
+
+
+
+
+
+
 - `example.html <example.html>`_
-- `slides-template.tpl <slides-template.tpl>`_
+- slides-template.tpl
+
+
+
+

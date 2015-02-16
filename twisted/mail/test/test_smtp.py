@@ -122,7 +122,7 @@ class DummyDomain(object):
 
 
 
-class SMTPTests(unittest.TestCase):
+class SMTPTestCase(unittest.TestCase):
 
     messages = [('foo@bar.com', ['foo@baz.com', 'qux@baz.com'], '''\
 Subject: urgent\015
@@ -232,10 +232,10 @@ class LoopbackTestCase(LoopbackMixin):
         return self.loopback(protocol, clientProtocol)
     testMessages.suppress = [util.suppress(message='DomainSMTP', category=DeprecationWarning)]
 
-class LoopbackSMTPTests(LoopbackTestCase, unittest.TestCase):
+class LoopbackSMTPTestCase(LoopbackTestCase, unittest.TestCase):
     clientClass = MySMTPClient
 
-class LoopbackESMTPTests(LoopbackTestCase, unittest.TestCase):
+class LoopbackESMTPTestCase(LoopbackTestCase, unittest.TestCase):
     clientClass = MyESMTPClient
 
 
@@ -266,7 +266,7 @@ class FakeSMTPServer(basic.LineReceiver):
             self.sendLine(self.clientData.pop())
 
 
-class SMTPClientTests(unittest.TestCase, LoopbackMixin):
+class SMTPClientTestCase(unittest.TestCase, LoopbackMixin):
     """
     Tests for L{smtp.SMTPClient}.
     """
@@ -520,11 +520,11 @@ To: foo
         a.setTimeout(None)
 
 
-class AnotherESMTPTests(AnotherTestCase, unittest.TestCase):
+class AnotherESMTPTestCase(AnotherTestCase, unittest.TestCase):
     serverClass = DummyESMTP
     clientClass = MyESMTPClient
 
-class AnotherSMTPTests(AnotherTestCase, unittest.TestCase):
+class AnotherSMTPTestCase(AnotherTestCase, unittest.TestCase):
     serverClass = DummySMTP
     clientClass = MySMTPClient
 
@@ -582,7 +582,7 @@ class DummyRealm:
 
 
 
-class AuthTests(unittest.TestCase, LoopbackMixin):
+class AuthTestCase(unittest.TestCase, LoopbackMixin):
     def test_crammd5Auth(self):
         """
         L{ESMTPClient} can authenticate using the I{CRAM-MD5} SASL mechanism.
@@ -651,7 +651,7 @@ class AuthTests(unittest.TestCase, LoopbackMixin):
 
 
 
-class SMTPHelperTests(unittest.TestCase):
+class SMTPHelperTestCase(unittest.TestCase):
     def testMessageID(self):
         d = {}
         for i in range(1000):
@@ -729,7 +729,7 @@ class NoticeTLSClient(MyESMTPClient):
 
 
 
-class TLSTests(unittest.TestCase, LoopbackMixin):
+class TLSTestCase(unittest.TestCase, LoopbackMixin):
     if sslSkip is not None:
         skip = sslSkip
 
@@ -747,12 +747,12 @@ class TLSTests(unittest.TestCase, LoopbackMixin):
         return self.loopback(server, client).addCallback(check)
 
 if not interfaces.IReactorSSL.providedBy(reactor):
-    for case in (TLSTests,):
+    for case in (TLSTestCase,):
         case.skip = "Reactor doesn't support SSL"
 
 
 
-class EmptyLineTests(unittest.TestCase):
+class EmptyLineTestCase(unittest.TestCase):
     def test_emptyLineSyntaxError(self):
         """
         If L{smtp.SMTP} receives an empty line, it responds with a 500 error
@@ -771,7 +771,7 @@ class EmptyLineTests(unittest.TestCase):
 
 
 
-class TimeoutTests(unittest.TestCase, LoopbackMixin):
+class TimeoutTestCase(unittest.TestCase, LoopbackMixin):
     """
     Check that SMTP client factories correctly use the timeout.
     """
@@ -925,7 +925,7 @@ class MultipleDeliveryFactorySMTPServerFactory(protocol.ServerFactory):
 
 
 
-class SMTPSenderFactoryTests(unittest.TestCase):
+class SMTPSenderFactoryTestCase(unittest.TestCase):
     """
     Tests for L{smtp.SMTPSenderFactory}.
     """
@@ -964,7 +964,7 @@ class SMTPSenderFactoryTests(unittest.TestCase):
 
 
 
-class SMTPSenderFactoryRetryTests(unittest.TestCase):
+class SMTPSenderFactoryRetryTestCase(unittest.TestCase):
     """
     Tests for the retry behavior of L{smtp.SMTPSenderFactory}.
     """
@@ -1062,7 +1062,7 @@ class NotImplementedDelivery(object):
 
 
 
-class SMTPServerTests(unittest.TestCase):
+class SMTPServerTestCase(unittest.TestCase):
     """
     Test various behaviors of L{twisted.mail.smtp.SMTP} and
     L{twisted.mail.smtp.ESMTP}.
@@ -1261,7 +1261,7 @@ class SMTPServerTests(unittest.TestCase):
 
 
 
-class ESMTPAuthenticationTests(unittest.TestCase):
+class ESMTPAuthenticationTestCase(unittest.TestCase):
     def assertServerResponse(self, bytes, response):
         """
         Assert that when the given bytes are delivered to the ESMTP server
@@ -1493,7 +1493,7 @@ class ESMTPAuthenticationTests(unittest.TestCase):
 
 
 
-class SMTPClientErrorTests(unittest.TestCase):
+class SMTPClientErrorTestCase(unittest.TestCase):
     """
     Tests for L{smtp.SMTPClientError}.
     """
@@ -1559,84 +1559,6 @@ class SenderMixinSentMailTests(unittest.TestCase):
         client.sentMail(199, "Test response", 1, addresses, client.log)
 
         return onDone
-
-
-
-class ESMTPDowngradeTestCase(unittest.TestCase):
-    """
-    Tests for the ESMTP -> SMTP downgrade functionality in L{smtp.ESMTPClient}.
-    """
-    def setUp(self):
-        self.clientProtocol = smtp.ESMTPClient(
-            b"testpassword", None, b"testuser")
-
-    def test_requireHELOFallbackOperates(self):
-        """
-        If both authentication and transport security are not required, and it
-        is asked for, it will fall back to allowing HELO.
-        """
-        transport = StringTransport()
-        self.clientProtocol.requireAuthentication = False
-        self.clientProtocol.requireTransportSecurity = False
-        self.clientProtocol.heloFallback = True
-        self.clientProtocol.makeConnection(transport)
-
-        self.clientProtocol.dataReceived(b"220 localhost\r\n")
-        transport.clear()
-        self.clientProtocol.dataReceived(b"500 not an esmtp server\r\n")
-        self.assertEqual(b"HELO testuser\r\n", transport.value())
-
-
-    def test_requireAuthFailsHELOFallback(self):
-        """
-        If authentication is required, and HELO fallback is on, HELO fallback
-        must not be honoured, as authentication requires EHLO to succeed.
-        """
-        transport = StringTransport()
-        self.clientProtocol.requireAuthentication = True
-        self.clientProtocol.requireTransportSecurity = False
-        self.clientProtocol.heloFallback = True
-        self.clientProtocol.makeConnection(transport)
-
-        self.clientProtocol.dataReceived(b"220 localhost\r\n")
-        transport.clear()
-        self.clientProtocol.dataReceived(b"500 not an esmtp server\r\n")
-        self.assertEqual("QUIT\r\n", transport.value())
-
-
-    def test_requireTLSFailsHELOFallback(self):
-        """
-        If TLS is required and the connection is insecure, HELO fallback must
-        not be honoured, as STARTTLS requires EHLO to succeed.
-        """
-        transport = StringTransport()
-        self.clientProtocol.requireAuthentication = False
-        self.clientProtocol.requireTransportSecurity = True
-        self.clientProtocol.heloFallback = True
-        self.clientProtocol.makeConnection(transport)
-
-        self.clientProtocol.dataReceived(b"220 localhost\r\n")
-        transport.clear()
-        self.clientProtocol.dataReceived(b"500 not an esmtp server\r\n")
-        self.assertEqual(b"QUIT\r\n", transport.value())
-
-
-    def test_requireTLSAndHELOFallbackSucceedsIfOverTLS(self):
-        """
-        If TLS is provided at the transport level, we can honour the HELO
-        fallback if we're set to require TLS.
-        """
-        transport = StringTransport()
-        directlyProvides(transport, interfaces.ISSLTransport)
-        self.clientProtocol.requireAuthentication = False
-        self.clientProtocol.requireTransportSecurity = True
-        self.clientProtocol.heloFallback = True
-        self.clientProtocol.makeConnection(transport)
-
-        self.clientProtocol.dataReceived(b"220 localhost\r\n")
-        transport.clear()
-        self.clientProtocol.dataReceived(b"500 not an esmtp server\r\n")
-        self.assertEqual(b"HELO testuser\r\n", transport.value())
 
 
 
@@ -1818,7 +1740,7 @@ class AbortableStringTransport(StringTransport):
 
 
 
-class SendmailTests(unittest.TestCase):
+class SendmailTestCase(unittest.TestCase):
     """
     Tests for L{twisted.mail.smtp.sendmail}.
     """

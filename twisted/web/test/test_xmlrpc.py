@@ -18,11 +18,10 @@ from twisted.web import server, static, client, error, http
 from twisted.internet import reactor, defer
 from twisted.internet.error import ConnectionDone
 from twisted.python import failure
-from twisted.python.reflect import namedModule
 from twisted.test.proto_helpers import MemoryReactor
 from twisted.web.test.test_web import DummyRequest
 try:
-    namedModule('twisted.internet.ssl')
+    import twisted.internet.ssl
 except ImportError:
     sslSkip = "OpenSSL not present"
 else:
@@ -255,7 +254,7 @@ class TestQueryFactoryCancel(xmlrpc._QueryFactory):
         self.connector = connector
 
 
-class XMLRPCTests(unittest.TestCase):
+class XMLRPCTestCase(unittest.TestCase):
 
     def setUp(self):
         self.p = reactor.listenTCP(0, server.Site(Test()),
@@ -446,7 +445,7 @@ class XMLRPCTests(unittest.TestCase):
 
 
 
-class XMLRPCProxyWithoutSlashTests(XMLRPCTests):
+class XMLRPCTestCase2(XMLRPCTestCase):
     """
     Test with proxy that doesn't add a slash.
     """
@@ -461,7 +460,7 @@ class XMLRPCProxyWithoutSlashTests(XMLRPCTests):
 
 
 
-class XMLRPCPublicLookupProcedureTests(unittest.TestCase):
+class XMLRPCTestPublicLookupProcedure(unittest.TestCase):
     """
     Tests for L{XMLRPC}'s support of subclasses which override
     C{lookupProcedure} and C{listProcedures}.
@@ -567,7 +566,7 @@ class SerializationConfigMixin:
 
 
 
-class XMLRPCAllowNoneTests(SerializationConfigMixin, unittest.TestCase):
+class XMLRPCAllowNoneTestCase(SerializationConfigMixin, unittest.TestCase):
     """
     Tests for passing C{None} when the C{allowNone} flag is set.
     """
@@ -575,7 +574,7 @@ class XMLRPCAllowNoneTests(SerializationConfigMixin, unittest.TestCase):
     value = None
 
 
-class XMLRPCUseDateTimeTests(SerializationConfigMixin, unittest.TestCase):
+class XMLRPCUseDateTimeTestCase(SerializationConfigMixin, unittest.TestCase):
     """
     Tests for passing a C{datetime.datetime} instance when the C{useDateTime}
     flag is set.
@@ -584,7 +583,7 @@ class XMLRPCUseDateTimeTests(SerializationConfigMixin, unittest.TestCase):
     value = datetime.datetime(2000, 12, 28, 3, 45, 59)
 
 
-class XMLRPCAuthenticatedTests(XMLRPCTests):
+class XMLRPCTestAuthenticated(XMLRPCTestCase):
     """
     Test with authenticated proxy. We run this with the same inout/ouput as
     above.
@@ -637,7 +636,7 @@ class XMLRPCAuthenticatedTests(XMLRPCTests):
         return d
 
 
-class XMLRPCIntrospectionTests(XMLRPCTests):
+class XMLRPCTestIntrospection(XMLRPCTestCase):
 
     def setUp(self):
         xmlrpc = Test()
@@ -690,7 +689,7 @@ class XMLRPCIntrospectionTests(XMLRPCTests):
         return defer.DeferredList(dl, fireOnOneErrback=True)
 
 
-class XMLRPCClientErrorHandlingTests(unittest.TestCase):
+class XMLRPCClientErrorHandling(unittest.TestCase):
     """
     Test error handling on the xmlrpc client.
     """
@@ -716,7 +715,7 @@ class XMLRPCClientErrorHandlingTests(unittest.TestCase):
 
 
 
-class QueryFactoryParseResponseTests(unittest.TestCase):
+class TestQueryFactoryParseResponse(unittest.TestCase):
     """
     Test the behaviour of L{_QueryFactory.parseResponse}.
     """
@@ -796,7 +795,7 @@ class QueryFactoryParseResponseTests(unittest.TestCase):
 
 
 
-class XMLRPCWithRequestTests(unittest.TestCase):
+class XMLRPCTestWithRequest(unittest.TestCase):
 
     def setUp(self):
         self.resource = Test()

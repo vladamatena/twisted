@@ -125,7 +125,7 @@ class BrokenSentenceCallbackTests(TestCase):
 
 
 
-class SplitTests(TestCase):
+class SplitTest(TestCase):
     """
     Checks splitting of NMEA sentences.
     """
@@ -1008,7 +1008,7 @@ class InvalidFixTests(FixerTestMixin, TestCase):
 
 
 
-class NMEAReceiverTests(TestCase):
+class NMEAReceiverTest(TestCase):
     """
     Tests for the NMEA receiver.
     """
@@ -1027,10 +1027,10 @@ class NMEAReceiverTests(TestCase):
         """
         self.protocol.lineReceived(GPGGA)
 
-        gpggaCallbacks = set(['positionReceived',
+        GPGGACallbacks = set(['positionReceived',
                               'positionErrorReceived',
                               'altitudeReceived'])
-        self.assertEqual(set(self.receiver.called.keys()), gpggaCallbacks)
+        self.assertEqual(set(self.receiver.called.keys()), GPGGACallbacks)
 
         self.receiver.clear()
         self.assertNotEqual(self.adapter._state, {})
@@ -1039,8 +1039,8 @@ class NMEAReceiverTests(TestCase):
         # altitude or anything like that; but that information is
         # still in the state.
         self.protocol.lineReceived(GPHDT)
-        gphdtCallbacks = set(['headingReceived'])
-        self.assertEqual(set(self.receiver.called.keys()), gphdtCallbacks)
+        GPHDTCallbacks = set(['headingReceived'])
+        self.assertEqual(set(self.receiver.called.keys()), GPHDTCallbacks)
 
 
     def _receiverTest(self, sentences, expectedFired=(), extraTest=None):

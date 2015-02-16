@@ -40,6 +40,7 @@ from twisted.web import http
 from twisted.internet import defer, protocol, task, reactor
 from twisted.internet.interfaces import IProtocol
 from twisted.internet.endpoints import TCP4ClientEndpoint, SSL4ClientEndpoint
+from twisted.python import failure
 from twisted.python.util import InsensitiveDict
 from twisted.python.components import proxyForInterface
 from twisted.web import error
@@ -158,7 +159,7 @@ class HTTPPageGetter(http.HTTPClient):
                     self.status,
                     'Infinite redirection detected',
                     location=url)
-                self.factory.noPage(Failure(err))
+                self.factory.noPage(failure.Failure(err))
                 self.quietLoss = True
                 self.transport.loseConnection()
                 return
@@ -179,7 +180,7 @@ class HTTPPageGetter(http.HTTPClient):
         else:
             self.handleStatusDefault()
             self.factory.noPage(
-                Failure(
+                failure.Failure(
                     error.PageRedirect(
                         self.status, self.message, location = url)))
         self.quietLoss = True
@@ -217,7 +218,7 @@ class HTTPPageGetter(http.HTTPClient):
             return
         if self.failed:
             self.factory.noPage(
-                Failure(
+                failure.Failure(
                     error.Error(
                         self.status, self.message, response)))
         if self.factory.method == b'HEAD':
@@ -225,7 +226,7 @@ class HTTPPageGetter(http.HTTPClient):
             # body for HEAD requests.
             self.factory.page(b'')
         elif self.length != None and self.length != 0:
-            self.factory.noPage(Failure(
+            self.factory.noPage(failure.Failure(
                 PartialDownloadError(self.status, self.message, response)))
         else:
             self.factory.page(response)
@@ -260,14 +261,14 @@ class HTTPPageDownloader(HTTPPageGetter):
         if self.length:
             self.transmittingPage = 0
             self.factory.noPage(
-                Failure(
+                failure.Failure(
                     PartialDownloadError(self.status)))
         if self.transmittingPage:
             self.factory.pageEnd()
             self.transmittingPage = 0
         if self.failed:
             self.factory.noPage(
-                Failure(
+                failure.Failure(
                     error.Error(
                         self.status, self.message, None)))
             self.transport.loseConnection()
@@ -503,7 +504,7 @@ class HTTPDownloader(HTTPClientFactory):
                     self.file = self.openFile(partialContent)
             except IOError:
                 #raise
-                self.deferred.errback(Failure())
+                self.deferred.errback(failure.Failure())
 
     def pagePart(self, data):
         if not self.file:
@@ -513,7 +514,7 @@ class HTTPDownloader(HTTPClientFactory):
         except IOError:
             #raise
             self.file = None
-            self.deferred.errback(Failure())
+            self.deferred.errback(failure.Failure())
 
 
     def noPage(self, reason):
@@ -538,7 +539,7 @@ class HTTPDownloader(HTTPClientFactory):
         try:
             self.file.close()
         except IOError:
-            self.deferred.errback(Failure())
+            self.deferred.errback(failure.Failure())
             return
         self.deferred.callback(self.value)
 
@@ -872,8 +873,7 @@ class BrowserLikePolicyForHTTPS(object):
         @rtype: L{client connection creator
             <twisted.internet.interfaces.IOpenSSLClientConnectionCreator>}
         """
-        return optionsForClientTLS(hostname.decode("ascii"),
-                                   trustRoot=self._trustRoot)
+        return optionsForClientTLS(hostname.decode("ascii"))
 
 
 
@@ -1428,7 +1428,7 @@ class _StandardEndpointFactory(object):
 class Agent(_AgentBase):
     """
     L{Agent} is a very basic HTTP client.  It supports I{HTTP} and I{HTTPS}
-    scheme URIs.
+    scheme URIs (but performs no certificate checking by default).
 
     @ivar _pool: An L{HTTPConnectionPool} instance.
 
@@ -1800,7 +1800,7 @@ class _GzipProtocol(proxyForInterface(IProtocol)):
         try:
             rawData = self._zlibDecompress.decompress(data)
         except zlib.error:
-            raise ResponseFailed([Failure()], self._response)
+            raise ResponseFailed([failure.Failure()], self._response)
         if rawData:
             self.original.dataReceived(rawData)
 
@@ -1813,7 +1813,7 @@ class _GzipProtocol(proxyForInterface(IProtocol)):
         try:
             rawData = self._zlibDecompress.flush()
         except zlib.error:
-            raise ResponseFailed([reason, Failure()], self._response)
+            raise ResponseFailed([reason, failure.Failure()], self._response)
         if rawData:
             self.original.dataReceived(rawData)
         self.original.connectionLost(reason)
@@ -1954,12 +1954,12 @@ class RedirectAgent(object):
                 response.code,
                 'Infinite redirection detected',
                 location=uri)
-            raise ResponseFailed([Failure(err)], response)
+            raise ResponseFailed([failure.Failure(err)], response)
         locationHeaders = response.headers.getRawHeaders('location', [])
         if not locationHeaders:
             err = error.RedirectWithNoLocation(
                 response.code, 'No location header field', uri)
-            raise ResponseFailed([Failure(err)], response)
+            raise ResponseFailed([failure.Failure(err)], response)
         location = self._resolveLocation(uri, locationHeaders[0])
         deferred = self._agent.request(method, location, headers)
         def _chainResponse(newResponse):
@@ -1977,7 +1977,7 @@ class RedirectAgent(object):
         if response.code in self._redirectResponses:
             if method not in ('GET', 'HEAD'):
                 err = error.PageRedirect(response.code, location=uri)
-                raise ResponseFailed([Failure(err)], response)
+                raise ResponseFailed([failure.Failure(err)], response)
             return self._handleRedirect(response, method, uri, headers,
                                         redirectCount)
         elif response.code in self._seeOtherResponses:

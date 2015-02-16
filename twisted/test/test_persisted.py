@@ -23,7 +23,7 @@ from twisted.persisted import styles, aot, crefutil
 
 
 class VersionTestCase(unittest.TestCase):
-    def test_nullVersionUpgrade(self):
+    def testNullVersionUpgrade(self):
         global NullVersioned
         class NullVersioned:
             ok = 0
@@ -36,7 +36,7 @@ class VersionTestCase(unittest.TestCase):
         styles.doUpgrade()
         assert mnv.ok, "initial upgrade not run!"
 
-    def test_versionUpgrade(self):
+    def testVersionUpgrade(self):
         global MyVersioned
         class MyVersioned(styles.Versioned):
             persistenceVersion = 2
@@ -67,7 +67,7 @@ class VersionTestCase(unittest.TestCase):
         assert obj.v3 == 1, "upgraded unnecessarily"
         assert obj.v4 == 1, "upgraded unnecessarily"
     
-    def test_nonIdentityHash(self):
+    def testNonIdentityHash(self):
         global ClassWithCustomHash
         class ClassWithCustomHash(styles.Versioned):
             def __init__(self, unique, hash):
@@ -90,7 +90,7 @@ class VersionTestCase(unittest.TestCase):
         self.failUnless(v1.upgraded)
         self.failUnless(v2.upgraded)
     
-    def test_upgradeDeserializesObjectsRequiringUpgrade(self):
+    def testUpgradeDeserializesObjectsRequiringUpgrade(self):
         global ToyClassA, ToyClassB
         class ToyClassA(styles.Versioned):
             pass
@@ -183,7 +183,7 @@ class MyEphemeral(styles.Ephemeral):
 
 class EphemeralTestCase(unittest.TestCase):
 
-    def test_ephemeral(self):
+    def testEphemeral(self):
         o = MyEphemeral(3)
         self.assertEqual(o.__class__, MyEphemeral)
         self.assertEqual(o.x, 3)
@@ -223,24 +223,24 @@ def funktion():
 class PicklingTestCase(unittest.TestCase):
     """Test pickling of extra object types."""
     
-    def test_module(self):
+    def testModule(self):
         pickl = pickle.dumps(styles)
         o = pickle.loads(pickl)
         self.assertEqual(o, styles)
     
-    def test_classMethod(self):
+    def testClassMethod(self):
         pickl = pickle.dumps(Pickleable.getX)
         o = pickle.loads(pickl)
         self.assertEqual(o, Pickleable.getX)
     
-    def test_instanceMethod(self):
+    def testInstanceMethod(self):
         obj = Pickleable(4)
         pickl = pickle.dumps(obj.getX)
         o = pickle.loads(pickl)
         self.assertEqual(o(), 4)
         self.assertEqual(type(o), type(obj.getX))
     
-    def test_stringIO(self):
+    def testStringIO(self):
         f = StringIO.StringIO()
         f.write("abc")
         pickl = pickle.dumps(f)
@@ -262,12 +262,12 @@ class NonDictState:
         self.state = state
 
 class AOTTestCase(unittest.TestCase):
-    def test_simpleTypes(self):
+    def testSimpleTypes(self):
         obj = (1, 2.0, 3j, True, slice(1, 2, 3), 'hello', u'world', sys.maxint + 1, None, Ellipsis)
         rtObj = aot.unjellyFromSource(aot.jellyToSource(obj))
         self.assertEqual(obj, rtObj)
 
-    def test_methodSelfIdentity(self):
+    def testMethodSelfIdentity(self):
         a = A()
         b = B()
         a.bmethod = b.bmethod
@@ -307,7 +307,7 @@ class AOTTestCase(unittest.TestCase):
         self.assertRaises(TypeError, aot.jellyToSource, set())
 
 
-    def test_basicIdentity(self):
+    def testBasicIdentity(self):
         # Anyone wanting to make this datastructure more complex, and thus this
         # test more comprehensive, is welcome to do so.
         aj = aot.AOTJellier().jellyToAO
@@ -327,12 +327,12 @@ class AOTTestCase(unittest.TestCase):
         assert uj[1][0:5] == l[0:5]
 
 
-    def test_nonDictState(self):
+    def testNonDictState(self):
         a = NonDictState()
         a.state = "meringue!"
         assert aot.unjellyFromSource(aot.jellyToSource(a)).state == a.state
 
-    def test_copyReg(self):
+    def testCopyReg(self):
         s = "foo_bar"
         sio = StringIO.StringIO()
         sio.write(s)
@@ -340,7 +340,7 @@ class AOTTestCase(unittest.TestCase):
         # print repr(uj.__dict__)
         assert uj.getvalue() == s
 
-    def test_funkyReferences(self):
+    def testFunkyReferences(self):
         o = EvilSourceror(EvilSourceror([]))
         j1 = aot.jellyToAOT(o)
         oj = aot.unjellyFromAOT(j1)

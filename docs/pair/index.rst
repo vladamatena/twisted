@@ -6,6 +6,7 @@
 Twisted Pair
 ============
 
+
 .. toctree::
    :hidden:
 
@@ -13,5 +14,15 @@ Twisted Pair
    examples/index
 
 
-- :doc:`Developer guides <howto/index>`: documentation on using Twisted Pair to develop your own applications
-- :doc:`Code Examples <examples/index>`: short code examples using Twisted Pair
+
+
+
+
+- :doc:`Developer guides <howto/index>` : documentation on using
+  Twisted Pair to develop your own applications
+- :doc:`Code Examples <examples/index>` : short code examples using
+  Twisted Pair
+
+
+
+

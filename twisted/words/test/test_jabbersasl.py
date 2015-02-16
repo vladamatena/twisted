@@ -57,7 +57,7 @@ class DummySASLInitiatingInitializer(sasl.SASLInitiatingInitializer):
 
 
 
-class SASLInitiatingInitializerTests(unittest.TestCase):
+class SASLInitiatingInitializerTest(unittest.TestCase):
     """
     Tests for L{sasl.SASLInitiatingInitializer}
     """
@@ -185,7 +185,7 @@ class SASLInitiatingInitializerTests(unittest.TestCase):
         return d
 
 
-class SASLInitiatingInitializerSetMechanismTests(unittest.TestCase):
+class SASLInitiatingInitializerSetMechanismTest(unittest.TestCase):
     """
     Test for L{sasl.SASLInitiatingInitializer.setMechanism}.
     """

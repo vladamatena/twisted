@@ -20,7 +20,7 @@ class Foo:
     """
 
 
-class PoolTests(unittest.TestCase):
+class PoolTestCase(unittest.TestCase):
     """
     Tests for the Pool class.
     """
@@ -38,7 +38,7 @@ class PoolTests(unittest.TestCase):
 
 
 
-class CRUFTWatchyThingieTests(unittest.TestCase):
+class CRUFTWatchyThingieTestCase(unittest.TestCase):
     """
     Tests for the CRUFT_WatchyThingie class.
     """
@@ -71,7 +71,7 @@ class CRUFTWatchyThingieTests(unittest.TestCase):
 
 
 
-class WatchMonkeyTests(unittest.TestCase):
+class WatchMonkeyTestCase(unittest.TestCase):
     """
     Tests for the _WatchMonkey class.
     """

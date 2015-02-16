@@ -22,7 +22,7 @@ from twisted.web import resource
 from twisted.web.test.requesthelper import DummyChannel, DummyRequest
 
 
-class RedirectToTests(TestCase):
+class RedirectToTestCase(TestCase):
     """
     Tests for L{redirectTo}.
     """
@@ -284,7 +284,7 @@ class FormatFailureTests(TestCase):
 
 
 
-class DeprecatedHTMLHelpersTests(TestCase):
+class DeprecatedHTMLHelpers(TestCase):
     """
     The various HTML generation helper APIs in L{twisted.web.util} are
     deprecated.

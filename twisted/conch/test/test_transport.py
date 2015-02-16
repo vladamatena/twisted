@@ -381,7 +381,7 @@ class TransportTestCase(unittest.TestCase):
 
 
 
-class BaseSSHTransportTests(TransportTestCase):
+class BaseSSHTransportTestCase(TransportTestCase):
     """
     Test TransportBase.  It implements the non-server/client specific
     parts of the SSH transport protocol.
@@ -1172,7 +1172,7 @@ class ServerAndClientSSHTransportBaseCase:
 
 
 
-class ServerSSHTransportTests(ServerAndClientSSHTransportBaseCase,
+class ServerSSHTransportTestCase(ServerAndClientSSHTransportBaseCase,
         TransportTestCase):
     """
     Tests for the SSHServerTransport.
@@ -1517,7 +1517,7 @@ class ServerSSHTransportTests(ServerAndClientSSHTransportBaseCase,
 
 
 
-class ClientSSHTransportTests(ServerAndClientSSHTransportBaseCase,
+class ClientSSHTransportTestCase(ServerAndClientSSHTransportBaseCase,
         TransportTestCase):
     """
     Tests for SSHClientTransport.
@@ -1825,7 +1825,7 @@ class ClientSSHTransportTests(ServerAndClientSSHTransportBaseCase,
 
 
 
-class GetMACTests(unittest.TestCase):
+class GetMACTestCase(unittest.TestCase):
     """
     Tests for L{SSHCiphers._getMAC}.
     """
@@ -1883,7 +1883,7 @@ class GetMACTests(unittest.TestCase):
 
 
 
-class SSHCiphersTests(unittest.TestCase):
+class SSHCiphersTestCase(unittest.TestCase):
     """
     Tests for the SSHCiphers helper class.
     """
@@ -1994,7 +1994,7 @@ class SSHCiphersTests(unittest.TestCase):
 
 
 
-class CounterTests(unittest.TestCase):
+class CounterTestCase(unittest.TestCase):
     """
     Tests for the _Counter helper class.
     """
@@ -2023,7 +2023,7 @@ class CounterTests(unittest.TestCase):
 
 
 
-class TransportLoopbackTests(unittest.TestCase):
+class TransportLoopbackTestCase(unittest.TestCase):
     """
     Test the server transport and client transport against each other,
     """
@@ -2134,7 +2134,7 @@ class TransportLoopbackTests(unittest.TestCase):
         return defer.DeferredList(deferreds, fireOnOneErrback=True)
 
 
-class RandomNumberTests(unittest.TestCase):
+class RandomNumberTestCase(unittest.TestCase):
     """
     Tests for the random number generator L{_getRandomNumber} and private
     key generator L{_generateX}.

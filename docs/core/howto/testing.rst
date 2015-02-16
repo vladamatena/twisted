@@ -20,8 +20,7 @@ Trial basics
 library for writing test cases and utility functions for working with the
 Twisted environment in your tests, and a command-line utility for running your
 tests. Trial is built on the Python standard library's ``unittest`` 
-module. For more information on how Trial finds tests, see the
-:api:`twisted.trial.runner.TestLoader.loadModule <loadModule>` documentation.
+module.
 
 
 

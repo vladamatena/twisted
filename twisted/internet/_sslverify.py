@@ -746,7 +746,7 @@ class PublicKey:
         certificates share the same public key; it is not really useful for
         anything else.
 
-        In versions of Twisted prior to 15.0, C{keyHash} used a technique
+        In versions of Twisted prior to 14.1, C{keyHash} used a technique
         involving certificate requests for computing the hash that was not
         stable in the face of changes to the underlying OpenSSL library.
 
@@ -894,9 +894,9 @@ class KeyPair(PublicKey):
             self.signRequestObject(dn, self.requestObject(dn), serialNumber),
             self)
 
-KeyPair.__getstate__ = deprecated(Version("Twisted", 15, 0, 0),
+KeyPair.__getstate__ = deprecated(Version("Twisted", 14, 1, 0),
     "a real persistence system")(KeyPair.__getstate__)
-KeyPair.__setstate__ = deprecated(Version("Twisted", 15, 0, 0),
+KeyPair.__setstate__ = deprecated(Version("Twisted", 14, 1, 0),
     "a real persistence system")(KeyPair.__setstate__)
 
 
@@ -1541,10 +1541,10 @@ class OpenSSLCertificateOptions(object):
 
 
 OpenSSLCertificateOptions.__getstate__ = deprecated(
-        Version("Twisted", 15, 0, 0),
+        Version("Twisted", 14, 1, 0),
         "a real persistence system")(OpenSSLCertificateOptions.__getstate__)
 OpenSSLCertificateOptions.__setstate__ = deprecated(
-        Version("Twisted", 15, 0, 0),
+        Version("Twisted", 14, 1, 0),
         "a real persistence system")(OpenSSLCertificateOptions.__setstate__)
 
 

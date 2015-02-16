@@ -150,7 +150,7 @@ class WorseList(list):
 
 
 
-class SendmsgTests(TestCase):
+class SendmsgTestCase(TestCase):
     """
     Tests for sendmsg extension module and associated file-descriptor sending
     functionality.
@@ -333,7 +333,7 @@ class SendmsgTests(TestCase):
         """
         # Just exercise one flag with simple, well-known behavior.  MSG_DONTWAIT
         # makes the send a non-blocking call, even if the socket is in blocking
-        # mode.  See also test_flags in RecvmsgTests
+        # mode.  See also test_flags in RecvmsgTestCase
         for i in range(1024):
             try:
                 send1msg(self.input.fileno(), "x" * 1024, MSG_DONTWAIT)
@@ -408,7 +408,7 @@ class SendmsgTests(TestCase):
 
 
 
-class RecvmsgTests(TestCase):
+class RecvmsgTestCase(TestCase):
     """
     Tests for L{recv1msg} (primarily error handling cases).
     """
@@ -465,7 +465,7 @@ class RecvmsgTests(TestCase):
         The C{flags} argument to L{recv1msg} is passed on to the underlying
         C{recvmsg} call, to affect it in whatever way is defined by those flags.
         """
-        # See test_flags in SendmsgTests
+        # See test_flags in SendmsgTestCase
         reader, writer = socketpair(AF_UNIX)
         exc = self.assertRaises(
             error, recv1msg, reader.fileno(), MSG_DONTWAIT)

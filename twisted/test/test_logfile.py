@@ -123,7 +123,7 @@ class LogFileTestCase(unittest.TestCase):
         """
         Check rotated files have same permissions as original.
         """
-        open(self.path, "w").close()
+        f = open(self.path, "w").close()
         os.chmod(self.path, 0707)
         mode = os.stat(self.path)[stat.ST_MODE]
         log = logfile.LogFile(self.name, self.dir)
@@ -206,7 +206,7 @@ class LogFileTestCase(unittest.TestCase):
         os.chmod(self.path, 0707)
         currentMode = stat.S_IMODE(os.stat(self.path)[stat.ST_MODE])
         f.close()
-        logfile.LogFile(self.name, self.dir)
+        log1 = logfile.LogFile(self.name, self.dir)
         self.assertEqual(stat.S_IMODE(os.stat(self.path)[stat.ST_MODE]),
                           currentMode)
 
@@ -215,7 +215,7 @@ class LogFileTestCase(unittest.TestCase):
         """
         Test specifying the permissions used on the log file.
         """
-        logfile.LogFile(self.name, self.dir, defaultMode=0066)
+        log1 = logfile.LogFile(self.name, self.dir, defaultMode=0066)
         mode = stat.S_IMODE(os.stat(self.path)[stat.ST_MODE])
         if runtime.platform.isWindows():
             # The only thing we can get here is global read-only

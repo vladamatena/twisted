@@ -267,7 +267,7 @@ class AnonymousChecker(object):
 
 
 
-class SSHUserAuthServerTests(unittest.TestCase):
+class SSHUserAuthServerTestCase(unittest.TestCase):
     """
     Tests for SSHUserAuthServer.
     """
@@ -710,7 +710,7 @@ class SSHUserAuthServerTests(unittest.TestCase):
 
 
 
-class SSHUserAuthClientTests(unittest.TestCase):
+class SSHUserAuthClientTestCase(unittest.TestCase):
     """
     Tests for SSHUserAuthClient.
     """
@@ -946,7 +946,7 @@ class SSHUserAuthClientTests(unittest.TestCase):
 
 
 
-class LoopbackTests(unittest.TestCase):
+class LoopbackTestCase(unittest.TestCase):
 
 
     if keys is None:
@@ -1015,7 +1015,7 @@ class LoopbackTests(unittest.TestCase):
 
 
 
-class ModuleInitializationTests(unittest.TestCase):
+class ModuleInitializationTestCase(unittest.TestCase):
     if keys is None:
         skip = "cannot run w/o PyCrypto or PyASN1"
 

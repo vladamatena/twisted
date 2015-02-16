@@ -26,7 +26,7 @@ class MyProtocol:
         assert expectKw == kw, "Expected %r, got %r" % (expectKw, kw)
         assert expectData == data, "Expected %r, got %r" % (expectData, data)
 
-class IPTests(unittest.TestCase):
+class IPTestCase(unittest.TestCase):
     def testPacketParsing(self):
         proto = ip.IPProtocol()
         p1 = MyProtocol([

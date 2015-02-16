@@ -171,7 +171,7 @@ demo webserver that has the Test class from twisted.web.demo in it."""
         """
         if self['https']:
             try:
-                reflect.namedModule('OpenSSL.SSL')
+                from twisted.internet.ssl import DefaultOpenSSLContextFactory
             except ImportError:
                 raise usage.UsageError("SSL support not installed")
         if self['port'] is None:

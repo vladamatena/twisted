@@ -48,6 +48,7 @@ Developer Guides
    application
    tap
    systemd
+   logger
    logging
    constants
    rdbms
@@ -69,18 +70,37 @@ Developer Guides
    debug-with-emacs
 
 
+
+
+
+
 - .. _core-howto-index-introduction:
 
   Introduction
+
+
+
+
+
+
+
 
   - :doc:`Executive summary <vision>`
 
     Connecting your software - and having fun too!
 
 
+
 - .. _core-howto-index-tutorials:
 
   Getting Started
+
+
+
+
+
+
+
 
   - :doc:`Writing a TCP server <servers>`
 
@@ -91,7 +111,10 @@ Developer Guides
   - :doc:`Test-driven development with Twisted <trial>`
 
     Code without tests is broken by definition; Twisted makes it easy to test your network code.
-  - :doc:`Tutorial: Twisted From Scratch <tutorial/index>`
+  -
+    :doc:`Tutorial: Twisted From Scratch <tutorial/index>`
+
+
 
     #. :doc:`The Evolution of Finger: building a simple finger service <tutorial/intro>`
     #. :doc:`The Evolution of Finger: adding features to the finger service <tutorial/protocol>`
@@ -105,6 +128,7 @@ Developer Guides
     #. :doc:`The Evolution of Finger: making a finger library <tutorial/library>`
     #. :doc:`The Evolution of Finger: configuration and packaging of the finger service <tutorial/configuration>`
 
+
   - :doc:`Setting up the TwistedQuotes application <quotes>`
   - :doc:`Designing a Twisted application <design>`
 
@@ -113,6 +137,13 @@ Developer Guides
 - .. _core-howto-index-events:
 
   Networking and Other Event Sources
+
+
+
+
+
+
+
 
   - :doc:`Twisted Internet <internet-overview>`
 
@@ -124,7 +155,6 @@ Developer Guides
 
     Add some security to your network transport.
   - :doc:`UDP Networking <udp>`
-
     How to use Twisted's UDP implementation, including multicast and broadcast functionality.
   - :doc:`Using processes <process>`
 
@@ -152,9 +182,16 @@ Developer Guides
     GTK+, Windows, epoll() and more: use your GUI of choice, or a faster event loop.
 
 
+
 - .. _core-howto-index-highlevel:
 
   High-Level Infrastructure
+
+
+
+
+
+
 
   - :doc:`Getting Connected with Endpoints <endpoints>`
 
@@ -163,20 +200,30 @@ Developer Guides
 
     When inheritance isn't enough.
   - :doc:`Cred: Pluggable Authentication <cred>`
-
-    Implementing authentication and authorization that is configurable, pluggable and re-usable.
+    Implementing authentication and
+    authorization that is configurable, pluggable and
+    re-usable.
   - :doc:`Twisted's plugin architecture <plugin>`
 
     A generic plugin system for extendable programs.
+
 
 
 - .. _core-howto-index-deploying:
 
   Deploying Twisted Applications
 
+
+
+
+
+
+
+
   - :doc:`Helper programs and scripts (twistd, ..) <basics>`
 
-    ``twistd`` lets you daemonize and run your application.
+    ``twistd`` lets you daemonize and run your
+    application.
   - :doc:`Using the Twisted Application Framework <application>`
 
     Writing code that ``twistd`` can run.
@@ -184,13 +231,21 @@ Developer Guides
 
     More powerful ``twistd`` deployment method.
   - :doc:`Deploying Twisted with systemd <systemd>`
+    Use ``systemd`` to launch and
+    monitor Twisted applications
 
-    Use ``systemd`` to launch and monitor Twisted applications.
 
 
 - .. _core-howto-index-utilities:
 
   Utilities
+
+
+
+
+
+
+
 
   - :doc:`Logging <logging>`
 
@@ -215,18 +270,33 @@ Developer Guides
     Using wrappers for sendmsg(2) and recvmsg(2).
 
 
+
 - .. _core-howto-index-amp:
 
   Asynchronous Messaging Protocol (AMP)
+
+
+
+
+
+
+
 
   - :doc:`Asynchronous Messaging Protocol Overview <amp>`
 
     A two-way asynchronous message passing protocol, for when HTTP isn't good enough.
 
 
+
 - .. _core-howto-index-pb:
 
   Perspective Broker
+
+
+
+
+
+
 
   - :doc:`Twisted Spread <pb>`
 
@@ -260,3 +330,10 @@ Developer Guides
   - :doc:`Porting to Python 3 <python3>`
   - :doc:`Glossary <glossary>`
   - :doc:`Tips for debugging with emacs <debug-with-emacs>`
+
+
+
+
+
+
+

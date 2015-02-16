@@ -53,7 +53,7 @@ class Test(SOAPPublisher):
         return map[key]
 
 
-class SOAPTests(unittest.TestCase):
+class SOAPTestCase(unittest.TestCase):
 
     def setUp(self):
         self.publisher = Test()
@@ -110,5 +110,5 @@ class SOAPTests(unittest.TestCase):
         self.assertFalse(self.publisher.lookupFunction("foobar"))
 
 if not SOAPpy:
-    SOAPTests.skip = "SOAPpy not installed"
+    SOAPTestCase.skip = "SOAPpy not installed"
 

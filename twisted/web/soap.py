@@ -52,7 +52,7 @@ class SOAPPublisher(resource.Resource):
 
         p, header, body, attrs = SOAPpy.parseSOAPRPC(data, 1, 1, 1)
 
-        methodName, args, kwargs = p._name, p._aslist, p._asdict
+        methodName, args, kwargs, ns = p._name, p._aslist, p._asdict, p._ns
 
         # deal with changes in SOAPpy 0.11
         if callable(args):

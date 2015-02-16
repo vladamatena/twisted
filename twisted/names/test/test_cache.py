@@ -17,7 +17,7 @@ from twisted.names import dns, cache
 from twisted.internet import task, interfaces
 
 
-class CachingTests(unittest.TestCase):
+class Caching(unittest.TestCase):
     """
     Tests for L{cache.CacheResolver}.
     """

@@ -100,7 +100,7 @@ class TestNNTPClient(nntp.NNTPClient):
         raise AssertionError("fetchArticle() failed: %s" % (error,))
 
 
-class NNTPTests(unittest.TestCase):
+class NNTPTestCase(unittest.TestCase):
     def setUp(self):
         self.server = nntp.NNTPServer()
         self.server.factory = self

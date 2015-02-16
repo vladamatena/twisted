@@ -21,7 +21,7 @@ from twisted.test.proto_helpers import StringTransport
 
 
 
-class SSHUserAuthClientTests(TestCase):
+class SSHUserAuthClientTest(TestCase):
     """
     Tests for L{SSHUserAuthClient}.
 

@@ -64,7 +64,7 @@ svn+ssh://svn.twistedmatrix.com/svn/Twisted/trunk
 """
 
 
-class VersionsTests(TestCase):
+class VersionsTest(TestCase):
 
     def test_versionComparison(self):
         """

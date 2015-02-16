@@ -173,7 +173,7 @@ class HelperTests(TestCase):
 
 
 
-class SSHPublicKeyDatabaseTests(TestCase):
+class SSHPublicKeyDatabaseTestCase(TestCase):
     """
     Tests for L{SSHPublicKeyDatabase}.
     """
@@ -201,7 +201,7 @@ class SSHPublicKeyDatabaseTests(TestCase):
 
     def test_deprecated(self):
         """
-        L{SSHPublicKeyDatabase} is deprecated as of version 15.0
+        L{SSHPublicKeyDatabase} is deprecated as of version 14.1
         """
         warningsShown = self.flushWarnings(
             offendingFunctions=[self.setUp])
@@ -209,7 +209,7 @@ class SSHPublicKeyDatabaseTests(TestCase):
         self.assertEqual(
             warningsShown[0]['message'],
             "twisted.conch.checkers.SSHPublicKeyDatabase "
-            "was deprecated in Twisted 15.0.0: Please use "
+            "was deprecated in Twisted 14.1.0: Please use "
             "twisted.conch.checkers.SSHPublicKeyChecker, "
             "initialized with an instance of "
             "twisted.conch.checkers.UNIXAuthorizedKeysFiles instead.")
@@ -353,7 +353,7 @@ class SSHPublicKeyDatabaseTests(TestCase):
 
 
 
-class SSHProtocolCheckerTests(TestCase):
+class SSHProtocolCheckerTestCase(TestCase):
     """
     Tests for L{SSHProtocolChecker}.
     """
@@ -623,7 +623,7 @@ class UNIXPasswordDatabaseTests(TestCase):
 
 
 
-class AuthorizedKeyFileReaderTests(TestCase):
+class AuthorizedKeyFileReaderTestCase(TestCase):
     """
     Tests for L{checkers.readAuthorizedKeyFile}
     """
@@ -674,7 +674,7 @@ class AuthorizedKeyFileReaderTests(TestCase):
 
 
 
-class InMemorySSHKeyDBTests(TestCase):
+class InMemorySSHKeyDBTestCase(TestCase):
     """
     Tests for L{checkers.InMemorySSHKeyDB}
     """
@@ -711,7 +711,7 @@ class InMemorySSHKeyDBTests(TestCase):
 
 
 
-class UNIXAuthorizedKeysFilesTests(TestCase):
+class UNIXAuthorizedKeysFilesTestCase(TestCase):
     """
     Tests for L{checkers.UNIXAuthorizedKeysFiles}.
     """
@@ -807,7 +807,7 @@ class _DummyException(Exception):
 
 
 
-class SSHPublicKeyCheckerTests(TestCase):
+class SSHPublicKeyCheckerTestCase(TestCase):
     """
     Tests for L{checkers.SSHPublicKeyChecker}.
     """

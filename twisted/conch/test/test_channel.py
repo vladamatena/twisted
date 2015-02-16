@@ -67,7 +67,7 @@ class MockConnection(object):
         self.closes[channel] = True
 
 
-class ChannelTests(unittest.TestCase):
+class ChannelTestCase(unittest.TestCase):
 
     def setUp(self):
         """

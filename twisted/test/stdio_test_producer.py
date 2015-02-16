@@ -8,8 +8,7 @@ L{twisted.test.test_stdio.StandardInputOutputTestCase.test_producer} to test
 that process transports implement IProducer properly.
 """
 
-__import__('_preamble')
-import sys
+import sys, _preamble
 
 from twisted.internet import stdio, protocol
 from twisted.python import log, reflect

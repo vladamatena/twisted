@@ -21,7 +21,7 @@ class MyProtocol:
             expect, (data, kw),
             )
 
-class EthernetTests(unittest.TestCase):
+class EthernetTestCase(unittest.TestCase):
     def testPacketParsing(self):
         proto = ethernet.EthernetProtocol()
         p1 = MyProtocol([

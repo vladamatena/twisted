@@ -11,7 +11,7 @@ from twisted.words.service import InMemoryWordsRealm, IRCFactory, IRCUser
 from twisted.words.protocols import irc
 from twisted.cred import checkers, portal
 
-class IRCUserTests(unittest.TestCase):
+class IRCUserTestCase(unittest.TestCase):
     """
     Isolated tests for L{IRCUser}
     """
@@ -85,7 +85,7 @@ class IRCUserTests(unittest.TestCase):
         Gets messages out of a response
 
         @param response: The parsed IRC messages of the response, as returned
-        by L{IRCUserTests.response}
+        by L{IRCServiceTestCase.response}
 
         @param messageType: The string type of the desired messages.
 
@@ -149,7 +149,7 @@ class MocksyIRCUser(IRCUser):
 
 BADTEXT = '\xff'
 
-class IRCUserBadEncodingTests(unittest.TestCase):
+class IRCUserBadEncodingTestCase(unittest.TestCase):
     """
     Verifies that L{IRCUser} sends the correct error messages back to clients
     when given indecipherable bytes

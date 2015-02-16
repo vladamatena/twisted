@@ -9,7 +9,6 @@ import os, sys, itertools
 
 from twisted.trial import unittest
 from twisted.python import filepath, log
-from twisted.python.reflect import requireModule
 from twisted.python.runtime import platform
 from twisted.internet import error, defer, protocol, stdio, reactor
 from twisted.test.test_tcp import ConnectionLostNotifyingProtocol
@@ -24,7 +23,9 @@ UNIQUE_LAST_WRITE_STRING = 'xyz123abc Twisted is great!'
 
 skipWindowsNopywin32 = None
 if platform.isWindows():
-    if requireModule('win32process') is None:
+    try:
+        import win32process
+    except ImportError:
         skipWindowsNopywin32 = ("On windows, spawnProcess is not available "
                                 "in the absence of win32process.")
 

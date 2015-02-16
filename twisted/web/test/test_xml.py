@@ -25,7 +25,7 @@ class Sux0r(sux.XMLParser):
     def gotText(self, text):
         self.tokens.append(("text", text))
 
-class SUXTests(TestCase):
+class SUXTest(TestCase):
 
     def testBork(self):
         s = "<bork><bork><bork>"
@@ -35,7 +35,7 @@ class SUXTests(TestCase):
         self.assertEqual(len(ms.getTagStarts()),3)
 
 
-class MicroDOMTests(TestCase):
+class MicroDOMTest(TestCase):
 
     def test_leadingTextDropping(self):
         """
@@ -620,14 +620,9 @@ alert("I hate you");
         s = '<p>foo<b a="c"><foo z="foo"></foo><foo></foo><bar c="y"></bar></b></p>'
         self.assertEqual(s, n.toxml())
 
-
     def testDict(self):
-        """
-        Returns a dictionary which is hashable.
-        """
         n = microdom.Element("p")
-        hash(n)
-
+        d = {n : 1} # will fail if Element is unhashable
 
     def testEscaping(self):
         # issue 590
@@ -792,7 +787,7 @@ alert("I hate you");
 
 
 
-class BrokenHTMLTests(TestCase):
+class TestBrokenHTML(TestCase):
     """
     Tests for when microdom encounters very bad HTML and C{beExtremelyLenient}
     is enabled. These tests are inspired by some HTML generated in by a mailer,

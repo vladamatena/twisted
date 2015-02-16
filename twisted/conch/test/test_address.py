@@ -13,7 +13,7 @@ from twisted.conch.ssh.address import SSHTransportAddress
 
 
 
-class SSHTransportAddressTests(unittest.TestCase, AddressTestCaseMixin):
+class SSHTransportAddressTestCase(unittest.TestCase, AddressTestCaseMixin):
     """
     L{twisted.conch.ssh.address.SSHTransportAddress} is what Conch transports
     use to represent the other side of the SSH connection.  This tests the

@@ -9,7 +9,6 @@ from __future__ import division, absolute_import
 
 import unittest as pyunit
 
-from twisted.python.reflect import namedAny
 from twisted.trial import unittest
 from twisted.trial.test import suppression
 
@@ -156,11 +155,8 @@ class SynchronousSuppressionTest(SuppressionMixin, unittest.SynchronousTestCase)
     """
     @see: L{twisted.trial.test.test_tests}
     """
-    TestSetUpSuppression = namedAny(
-        'twisted.trial.test.suppression.SynchronousTestSetUpSuppression')
-    TestTearDownSuppression = namedAny(
-        'twisted.trial.test.suppression.SynchronousTestTearDownSuppression')
-    TestSuppression = namedAny(
-        'twisted.trial.test.suppression.SynchronousTestSuppression')
-    TestSuppression2 = namedAny(
-        'twisted.trial.test.suppression.SynchronousTestSuppression2')
+    from twisted.trial.test.suppression import (
+        SynchronousTestSetUpSuppression as TestSetUpSuppression,
+        SynchronousTestTearDownSuppression as TestTearDownSuppression,
+        SynchronousTestSuppression as TestSuppression,
+        SynchronousTestSuppression2 as TestSuppression2)

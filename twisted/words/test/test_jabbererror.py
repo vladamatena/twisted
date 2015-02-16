@@ -15,7 +15,7 @@ NS_STREAMS = 'http://etherx.jabber.org/streams'
 NS_XMPP_STREAMS = 'urn:ietf:params:xml:ns:xmpp-streams'
 NS_XMPP_STANZAS = 'urn:ietf:params:xml:ns:xmpp-stanzas'
 
-class BaseErrorTests(unittest.TestCase):
+class BaseErrorTest(unittest.TestCase):
 
     def test_getElementPlain(self):
         """
@@ -56,7 +56,7 @@ class BaseErrorTests(unittest.TestCase):
         self.assertEqual(len(element.children), 2)
         self.assertEqual(element.myerror, ac)
 
-class StreamErrorTests(unittest.TestCase):
+class StreamErrorTest(unittest.TestCase):
 
     def test_getElementPlain(self):
         """
@@ -84,7 +84,7 @@ class StreamErrorTests(unittest.TestCase):
 
 
 
-class StanzaErrorTests(unittest.TestCase):
+class StanzaErrorTest(unittest.TestCase):
     """
     Tests for L{error.StreamError}.
     """
@@ -164,7 +164,7 @@ class StanzaErrorTests(unittest.TestCase):
 
 
 
-class ParseErrorTests(unittest.TestCase):
+class ParseErrorTest(unittest.TestCase):
     """
     Tests for L{error._parseError}.
     """
@@ -248,7 +248,7 @@ class ParseErrorTests(unittest.TestCase):
 
 
 
-class ExceptionFromStanzaTests(unittest.TestCase):
+class ExceptionFromStanzaTest(unittest.TestCase):
 
     def test_basic(self):
         """
@@ -319,7 +319,7 @@ class ExceptionFromStanzaTests(unittest.TestCase):
         self.assertEqual('Unable to resolve hostname.', result.text)
         self.assertEqual([p], result.children)
 
-class ExceptionFromStreamErrorTests(unittest.TestCase):
+class ExceptionFromStreamErrorTest(unittest.TestCase):
 
     def test_basic(self):
         """

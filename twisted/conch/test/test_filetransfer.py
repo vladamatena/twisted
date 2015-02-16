@@ -100,7 +100,7 @@ class SFTPTestBase(unittest.TestCase):
         file(os.path.join(self.testDir, '.testHiddenFile'), 'w').write('a')
 
 
-class OurServerOurClientTests(SFTPTestBase):
+class TestOurServerOurClient(SFTPTestBase):
 
     if not unix:
         skip = "can't run on non-posix computers"
@@ -476,7 +476,7 @@ class FakeConn:
         pass
 
 
-class FileTransferCloseTests(unittest.TestCase):
+class TestFileTransferClose(unittest.TestCase):
 
     if not unix:
         skip = "can't run on non-posix computers"
@@ -578,7 +578,7 @@ class FileTransferCloseTests(unittest.TestCase):
 
 
 
-class ConstantsTests(unittest.TestCase):
+class TestConstants(unittest.TestCase):
     """
     Tests for the constants used by the SFTP protocol implementation.
 
@@ -683,7 +683,7 @@ class ConstantsTests(unittest.TestCase):
 
 
 
-class RawPacketDataTests(unittest.TestCase):
+class TestRawPacketData(unittest.TestCase):
     """
     Tests for L{filetransfer.FileTransferClient} which explicitly craft certain
     less common protocol messages to exercise their handling.

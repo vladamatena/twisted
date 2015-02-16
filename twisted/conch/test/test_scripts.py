@@ -66,7 +66,7 @@ class ScriptTests(TestCase, ScriptTestsMixin):
 
 
 
-class ZshIntegrationTests(TestCase, ZshScriptTestMixin):
+class ZshIntegrationTestCase(TestCase, ZshScriptTestMixin):
     """
     Test that zsh completion functions are generated without error
     """

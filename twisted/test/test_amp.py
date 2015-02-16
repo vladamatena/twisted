@@ -16,8 +16,7 @@ from twisted.python import filepath
 from twisted.python.failure import Failure
 from twisted.protocols import amp
 from twisted.trial import unittest
-from twisted.internet import (
-    address, protocol, defer, error, reactor, interfaces)
+from twisted.internet import protocol, defer, error, reactor, interfaces
 from twisted.test import iosim
 from twisted.test.proto_helpers import StringTransport
 
@@ -34,6 +33,11 @@ if ssl is None:
     skipSSL = "SSL not available"
 else:
     skipSSL = None
+
+
+
+tz = amp._FixedOffsetTZInfo.fromSignHoursMinutes
+
 
 
 class TestProto(protocol.Protocol):
@@ -2844,9 +2848,8 @@ class ListOfDateTimeTests(unittest.TestCase, ListOfTestsMixin):
     elementType = amp.DateTime()
 
     strings = {
-        "christmas":
-            "\x00\x202010-12-25T00:00:00.000000-00:00"
-            "\x00\x202010-12-25T00:00:00.000000-00:00",
+        "christmas": "\x00\x202010-12-25T00:00:00.000000-00:00"
+                     "\x00\x202010-12-25T00:00:00.000000-00:00",
         "christmas in eu": "\x00\x202010-12-25T00:00:00.000000+01:00",
         "christmas in iran": "\x00\x202010-12-25T00:00:00.000000+03:30",
         "christmas in nyc": "\x00\x202010-12-25T00:00:00.000000-05:00",
@@ -2857,26 +2860,20 @@ class ListOfDateTimeTests(unittest.TestCase, ListOfTestsMixin):
     objects = {
         "christmas": [
             datetime.datetime(2010, 12, 25, 0, 0, 0, tzinfo=amp.utc),
-            datetime.datetime(2010, 12, 25, 0, 0, 0,
-                tzinfo=amp._FixedOffsetTZInfo('+', 0, 0)),
+            datetime.datetime(2010, 12, 25, 0, 0, 0, tzinfo=tz('+', 0, 0)),
         ],
         "christmas in eu": [
-            datetime.datetime(2010, 12, 25, 0, 0, 0,
-                tzinfo=amp._FixedOffsetTZInfo('+', 1, 0)),
+            datetime.datetime(2010, 12, 25, 0, 0, 0, tzinfo=tz('+', 1, 0)),
         ],
         "christmas in iran": [
-            datetime.datetime(2010, 12, 25, 0, 0, 0,
-                tzinfo=amp._FixedOffsetTZInfo('+', 3, 30)),
+            datetime.datetime(2010, 12, 25, 0, 0, 0, tzinfo=tz('+', 3, 30)),
         ],
         "christmas in nyc": [
-            datetime.datetime(2010, 12, 25, 0, 0, 0,
-                tzinfo=amp._FixedOffsetTZInfo('-', 5, 0)),
+            datetime.datetime(2010, 12, 25, 0, 0, 0, tzinfo=tz('-', 5, 0)),
         ],
         "previous tests": [
-            datetime.datetime(2010, 12, 25, 0, 0, 0,
-                tzinfo=amp._FixedOffsetTZInfo('+', 3, 19)),
-            datetime.datetime(2010, 12, 25, 0, 0, 0,
-                tzinfo=amp._FixedOffsetTZInfo('-', 6, 59)),
+            datetime.datetime(2010, 12, 25, 0, 0, 0, tzinfo=tz('+', 3, 19)),
+            datetime.datetime(2010, 12, 25, 0, 0, 0, tzinfo=tz('-', 6, 59)),
         ],
     }
 
@@ -2976,15 +2973,15 @@ class UNIXStringTransport(object):
 
 
     def loseConnection(self):
-        self._queue.append(('connectionLost', Failure(error.ConnectionLost())))
+        self._queue.append(('connectionLost', Failure(ConnectionLost())))
 
 
     def getHost(self):
-        return address.UNIXAddress('/tmp/some-path')
+        return UNIXAddress('/tmp/some-path')
 
 
     def getPeer(self):
-        return address.UNIXAddress('/tmp/another-path')
+        return UNIXAddress('/tmp/another-path')
 
 # Minimal evidence that we got the signatures right
 verifyClass(interfaces.ITransport, UNIXStringTransport)
@@ -3085,7 +3082,7 @@ class DateTimeTests(unittest.TestCase):
     Tests for L{amp.DateTime}, L{amp._FixedOffsetTZInfo}, and L{amp.utc}.
     """
     string = '9876-01-23T12:34:56.054321-01:23'
-    tzinfo = amp._FixedOffsetTZInfo('-', 1, 23)
+    tzinfo = tz('-', 1, 23)
     object = datetime.datetime(9876, 1, 23, 12, 34, 56, 54321, tzinfo)
 
     def test_invalidString(self):
@@ -3129,9 +3126,9 @@ class DateTimeTests(unittest.TestCase):
 
 
 
-class FixedOffsetTZInfoTests(unittest.TestCase):
+class UTCTests(unittest.TestCase):
     """
-    Tests for L{amp._FixedOffsetTZInfo} and L{amp.utc}.
+    Tests for L{amp.utc}.
     """
 
     def test_tzname(self):
@@ -3157,10 +3154,10 @@ class FixedOffsetTZInfoTests(unittest.TestCase):
 
     def test_badSign(self):
         """
-        L{amp._FixedOffsetTZInfo} raises L{ValueError} if passed an offset sign
-        other than C{'+'} or C{'-'}.
+        L{amp._FixedOffsetTZInfo.fromSignHoursMinutes} raises L{ValueError} if
+        passed an offset sign other than C{'+'} or C{'-'}.
         """
-        self.assertRaises(ValueError, amp._FixedOffsetTZInfo, '?', 0, 0)
+        self.assertRaises(ValueError, tz, '?', 0, 0)
 
 
 

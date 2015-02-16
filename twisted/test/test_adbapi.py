@@ -1,6 +1,7 @@
 # Copyright (c) Twisted Matrix Laboratories.
 # See LICENSE for details.
 
+
 """
 Tests for twisted.enterprise.adbapi.
 """
@@ -14,14 +15,13 @@ from twisted.enterprise.adbapi import ConnectionPool, ConnectionLost
 from twisted.enterprise.adbapi import Connection, Transaction
 from twisted.internet import reactor, defer, interfaces
 from twisted.python.failure import Failure
-from twisted.python.reflect import requireModule
+
 
 simple_table_schema = """
 CREATE TABLE simple (
   x integer
 )
 """
-
 
 
 class ADBAPITestBase:
@@ -421,10 +421,9 @@ class SQLiteConnector(DBTestConnector):
     num_iterations = 1 # slow
 
     def can_connect(self):
-        if requireModule('sqlite') is None:
-            return False
-        else:
-            return True
+        try: import sqlite
+        except: return False
+        return True
 
     def startDB(self):
         self.database = os.path.join(self.DB_DIR, self.DB_NAME)
@@ -509,10 +508,9 @@ class FirebirdConnector(DBTestConnector):
 
     num_iterations = 5 # slow
 
-
     def can_connect(self):
-        if requireModule('kinterbasdb') is None:
-            return False
+        try: import kinterbasdb
+        except: return False
         try:
             self.startDB()
             self.stopDB()
@@ -658,7 +656,7 @@ class NonThreadPool(object):
         success = True
         try:
             result = f(*a, **kw)
-        except Exception:
+        except Exception, e:
             success = False
             result = Failure()
         onResult(success, result)

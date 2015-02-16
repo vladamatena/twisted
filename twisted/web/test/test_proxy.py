@@ -16,7 +16,7 @@ from twisted.web.proxy import ProxyClient, ProxyRequest, ReverseProxyRequest
 from twisted.web.test.test_web import DummyRequest
 
 
-class ReverseProxyResourceTests(TestCase):
+class ReverseProxyResourceTestCase(TestCase):
     """
     Tests for L{ReverseProxyResource}.
     """
@@ -123,7 +123,7 @@ class DummyChannel(object):
 
 
 
-class ProxyClientTests(TestCase):
+class ProxyClientTestCase(TestCase):
     """
     Tests for L{ProxyClient}.
     """
@@ -374,7 +374,7 @@ class ProxyClientTests(TestCase):
 
 
 
-class ProxyClientFactoryTests(TestCase):
+class ProxyClientFactoryTestCase(TestCase):
     """
     Tests for L{ProxyClientFactory}.
     """
@@ -418,7 +418,7 @@ class ProxyClientFactoryTests(TestCase):
 
 
 
-class ProxyRequestTests(TestCase):
+class ProxyRequestTestCase(TestCase):
     """
     Tests for L{ProxyRequest}.
     """
@@ -513,7 +513,7 @@ class DummyFactory(object):
 
 
 
-class ReverseProxyRequestTests(TestCase):
+class ReverseProxyRequestTestCase(TestCase):
     """
     Tests for L{ReverseProxyRequest}.
     """

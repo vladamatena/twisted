@@ -10,7 +10,7 @@ from twisted.trial import unittest
 from twisted.words.xish import domish
 
 
-class DomishTests(unittest.TestCase):
+class DomishTestCase(unittest.TestCase):
     def testEscaping(self):
         s = "&<>'\""
         self.assertEqual(domish.escapeToXml(s), "&amp;&lt;&gt;'\"")
@@ -250,7 +250,7 @@ class DomishStreamTestsMixin:
 
 
 
-class DomishExpatStreamTests(DomishStreamTestsMixin, unittest.TestCase):
+class DomishExpatStreamTestCase(DomishStreamTestsMixin, unittest.TestCase):
     """
     Tests for L{domish.ExpatElementStream}, the expat-based element stream
     implementation.
@@ -264,7 +264,7 @@ class DomishExpatStreamTests(DomishStreamTestsMixin, unittest.TestCase):
 
 
 
-class DomishSuxStreamTests(DomishStreamTestsMixin, unittest.TestCase):
+class DomishSuxStreamTestCase(DomishStreamTestsMixin, unittest.TestCase):
     """
     Tests for L{domish.SuxElementStream}, the L{twisted.web.sux}-based element
     stream implementation.

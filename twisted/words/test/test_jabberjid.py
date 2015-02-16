@@ -9,7 +9,7 @@ from twisted.trial import unittest
 
 from twisted.words.protocols.jabber import jid
 
-class JIDParsingTests(unittest.TestCase):
+class JIDParsingTest(unittest.TestCase):
     def test_parse(self):
         """
         Test different forms of JIDs.
@@ -88,7 +88,7 @@ class JIDParsingTests(unittest.TestCase):
         self.assertNotEquals(jid.prep("user", "host", "Resource"),
                              ("user", "host", "resource"))
 
-class JIDTests(unittest.TestCase):
+class JIDTest(unittest.TestCase):
 
     def test_noneArguments(self):
         """
@@ -215,7 +215,7 @@ class JIDTests(unittest.TestCase):
         j = jid.JID(tuple=('user', 'host', 'resource'))
         self.assertEqual("JID(u'user@host/resource')", repr(j))
 
-class InternJIDTests(unittest.TestCase):
+class InternJIDTest(unittest.TestCase):
     def test_identity(self):
         """
         Test that two interned JIDs yield the same object.

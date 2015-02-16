@@ -131,14 +131,14 @@ class RequestMixin:
 
 
 
-class BasicAuthTests(RequestMixin, BasicAuthTestsMixin, unittest.TestCase):
+class BasicAuthTestCase(RequestMixin, BasicAuthTestsMixin, unittest.TestCase):
     """
     Basic authentication tests which use L{twisted.web.http.Request}.
     """
 
 
 
-class DigestAuthTests(RequestMixin, unittest.TestCase):
+class DigestAuthTestCase(RequestMixin, unittest.TestCase):
     """
     Digest authentication tests which use L{twisted.web.http.Request}.
     """

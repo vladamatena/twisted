@@ -27,7 +27,7 @@ class Bar:
 
 
 
-class UnpickleMethodTests(unittest.TestCase):
+class UnpickleMethodTestCase(unittest.TestCase):
     """
     Tests for the unpickleMethod function.
     """

@@ -1,6 +1,8 @@
 # Copyright (c) Twisted Matrix Laboratories.
 # See LICENSE for details.
 
+import sys
+
 try:
     from twisted.python import dist
 except ImportError:

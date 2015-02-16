@@ -8,9 +8,11 @@ Test HTTP support.
 import random, cgi, base64
 
 try:
-    from urlparse import urlparse, urlunsplit, clear_cache
+    from urlparse import (
+        ParseResult as ParseResultBytes, urlparse, urlunsplit, clear_cache)
 except ImportError:
-    from urllib.parse import urlparse, urlunsplit, clear_cache
+    from urllib.parse import (
+        ParseResultBytes, urlparse, urlunsplit, clear_cache)
 
 from twisted.python.compat import _PY3, iterbytes, networkString, unicode, intToBytes
 from twisted.python.failure import Failure
@@ -28,7 +30,7 @@ from twisted.web.test.requesthelper import DummyChannel
 
 
 
-class DateTimeTests(unittest.TestCase):
+class DateTimeTest(unittest.TestCase):
     """Test date parsing functions."""
 
     def testRoundtrip(self):
@@ -103,7 +105,7 @@ class ResponseTestMixin(object):
 
 
 
-class HTTP1_0Tests(unittest.TestCase, ResponseTestMixin):
+class HTTP1_0TestCase(unittest.TestCase, ResponseTestMixin):
     requests = (
         b"GET / HTTP/1.0\r\n"
         b"\r\n"
@@ -157,7 +159,7 @@ class HTTP1_0Tests(unittest.TestCase, ResponseTestMixin):
 
 
 
-class HTTP1_1Tests(HTTP1_0Tests):
+class HTTP1_1TestCase(HTTP1_0TestCase):
 
     requests = (
         b"GET / HTTP/1.1\r\n"
@@ -200,7 +202,7 @@ class HTTP1_1Tests(HTTP1_0Tests):
 
 
 
-class HTTP1_1_close_Tests(HTTP1_0Tests):
+class HTTP1_1_close_TestCase(HTTP1_0TestCase):
 
     requests = (
         b"GET / HTTP/1.1\r\n"
@@ -221,7 +223,7 @@ class HTTP1_1_close_Tests(HTTP1_0Tests):
 
 
 
-class HTTP0_9Tests(HTTP1_0Tests):
+class HTTP0_9TestCase(HTTP1_0TestCase):
 
     requests = (
         b"GET /\r\n")
@@ -233,7 +235,7 @@ class HTTP0_9Tests(HTTP1_0Tests):
         self.assertEqual(response, expectedResponse)
 
 
-class HTTPLoopbackTests(unittest.TestCase):
+class HTTPLoopbackTestCase(unittest.TestCase):
 
     expectedHeaders = {b'request': b'/foo/bar',
                        b'command': b'GET',
@@ -296,7 +298,7 @@ def _prequest(**headers):
 
 
 
-class PersistenceTests(unittest.TestCase):
+class PersistenceTestCase(unittest.TestCase):
     """
     Tests for persistent HTTP connections.
     """
@@ -624,7 +626,7 @@ class ChunkedTransferEncodingTests(unittest.TestCase):
 
 
 
-class ChunkingTests(unittest.TestCase):
+class ChunkingTestCase(unittest.TestCase):
 
     strings = [b"abcv", b"", b"fdfsd423", b"Ffasfas\r\n",
                b"523523\n\rfsdf", b"4234"]
@@ -650,7 +652,7 @@ class ChunkingTests(unittest.TestCase):
 
 
 
-class ParsingTests(unittest.TestCase):
+class ParsingTestCase(unittest.TestCase):
     """
     Tests for protocol parsing in L{HTTPChannel}.
     """
@@ -1018,7 +1020,7 @@ Hello,
 
 
 
-class QueryArgumentsTests(unittest.TestCase):
+class QueryArgumentsTestCase(unittest.TestCase):
     def testParseqs(self):
         self.assertEqual(
             cgi.parse_qs(b"a=b&d=c;+=f"),
@@ -1122,7 +1124,7 @@ class ClientDriver(http.HTTPClient):
         self.status = status
         self.message = message
 
-class ClientStatusParsingTests(unittest.TestCase):
+class ClientStatusParsing(unittest.TestCase):
     def testBaseline(self):
         c = ClientDriver()
         c.lineReceived(b'HTTP/1.0 201 foo')
@@ -1847,7 +1849,7 @@ class RequestTests(unittest.TestCase, ResponseTestMixin):
 
 
 
-class MultilineHeadersTests(unittest.TestCase):
+class MultilineHeadersTestCase(unittest.TestCase):
     """
     Tests to exercise handling of multiline headers by L{HTTPClient}.  RFCs 1945
     (HTTP 1.0) and 2616 (HTTP 1.1) state that HTTP message header fields can
@@ -2189,6 +2191,6 @@ class DeprecatedRequestAttributesTests(unittest.TestCase):
                 "category": DeprecationWarning,
                 "message": (
                     "twisted.web.http.Request.getClient was deprecated "
-                    "in Twisted 15.0.0; please use Twisted Names to "
+                    "in Twisted 14.1.0; please use Twisted Names to "
                     "resolve hostnames instead")},
                          sub(["category", "message"], warnings[0]))

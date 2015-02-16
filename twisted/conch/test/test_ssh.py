@@ -307,7 +307,7 @@ if Crypto is not None and pyasn1 is not None:
     from twisted.conch.ssh import channel, connection, factory, keys
     from twisted.conch.ssh import transport, userauth
 
-    class UtilityTests(unittest.TestCase):
+    class UtilityTestCase(unittest.TestCase):
         def testCounter(self):
             c = transport._Counter('\x00\x00', 2)
             for i in xrange(256 * 256):
@@ -530,7 +530,7 @@ if Crypto is not None and pyasn1 is not None:
 
 
 
-class SSHProtocolTests(unittest.TestCase):
+class SSHProtocolTestCase(unittest.TestCase):
     """
     Tests for communication between L{SSHServerTransport} and
     L{SSHClientTransport}.
@@ -823,7 +823,7 @@ class SSHProtocolTests(unittest.TestCase):
 
 
 
-class SSHFactoryTests(unittest.TestCase):
+class TestSSHFactory(unittest.TestCase):
 
     if not Crypto:
         skip = "can't run w/o PyCrypto"
@@ -877,7 +877,7 @@ class SSHFactoryTests(unittest.TestCase):
 
 
 
-class MPTests(unittest.TestCase):
+class MPTestCase(unittest.TestCase):
     """
     Tests for L{common.getMP}.
 
@@ -943,7 +943,7 @@ class MPTests(unittest.TestCase):
 
 
 
-class PyMPTests(MPTests):
+class PyMPTestCase(MPTestCase):
     """
     Tests for the python implementation of L{common.getMP}.
     """
@@ -951,14 +951,14 @@ class PyMPTests(MPTests):
 
 
 
-class GMPYMPTests(MPTests):
+class GMPYMPTestCase(MPTestCase):
     """
     Tests for the gmpy implementation of L{common.getMP}.
     """
     getMP = staticmethod(common._fastgetMP)
 
 
-class BuiltinPowHackTests(unittest.TestCase):
+class BuiltinPowHackTestCase(unittest.TestCase):
     """
     Tests that the builtin pow method is still correct after
     L{twisted.conch.ssh.common} monkeypatches it to use gmpy.
@@ -995,5 +995,5 @@ class BuiltinPowHackTests(unittest.TestCase):
 try:
     import gmpy
 except ImportError:
-    GMPYMPTests.skip = "gmpy not available"
+    GMPYMPTestCase.skip = "gmpy not available"
     gmpy = None

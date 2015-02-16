@@ -183,7 +183,7 @@ class TestConnection(connection.SSHConnection):
 
 
 
-class ConnectionTests(unittest.TestCase):
+class ConnectionTestCase(unittest.TestCase):
 
     if test_userauth.transport is None:
         skip = "Cannot run without both PyCrypto and pyasn1"
@@ -700,7 +700,7 @@ class ConnectionTests(unittest.TestCase):
 
 
 
-class CleanConnectionShutdownTests(unittest.TestCase):
+class TestCleanConnectionShutdown(unittest.TestCase):
     """
     Check whether correct cleanup is performed on connection shutdown.
     """

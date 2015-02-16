@@ -74,6 +74,7 @@ try:
 except ImportError:
     from urllib.parse import (
         ParseResultBytes, urlparse as _urlparse, unquote as _unquote)
+    from io import TextIOWrapper
 
     def unquote(string, *args, **kwargs):
         return _unquote(string.decode('charmap'), *args, **kwargs).encode('charmap')
@@ -1346,7 +1347,7 @@ class Request:
         self.notifications = []
 
 Request.getClient = deprecated(
-    Version("Twisted", 15, 0, 0),
+    Version("Twisted", 14, 1, 0),
     "Twisted Names to resolve hostnames")(Request.getClient)
 
 

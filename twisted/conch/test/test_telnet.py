@@ -70,7 +70,7 @@ class TestProtocol:
 
 
 
-class InterfacesTests(unittest.TestCase):
+class TestInterfaces(unittest.TestCase):
     def test_interface(self):
         """
         L{telnet.TelnetProtocol} implements L{telnet.ITelnetProtocol}
@@ -80,7 +80,7 @@ class InterfacesTests(unittest.TestCase):
 
 
 
-class TelnetTransportTests(unittest.TestCase):
+class TelnetTransportTestCase(unittest.TestCase):
     """
     Tests for L{telnet.TelnetTransport}.
     """

@@ -20,7 +20,7 @@ else:
     sslSkip = None
 
 
-class OptionsTests(TestCase):
+class OptionsTestCase(TestCase):
     """
     Tests for the command line option parser used for I{twistd mail}.
     """

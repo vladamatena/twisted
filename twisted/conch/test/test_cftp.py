@@ -380,7 +380,7 @@ class SFTPTestProcess(protocol.ProcessProtocol):
         self._linesReceived.extend(lines)
         # XXX - not strictly correct.
         # We really want onOutReceived to fire after the first 'cftp>' prompt
-        # has been received. (See use in OurServerCmdLineClientTests.setUp)
+        # has been received. (See use in TestOurServerCmdLineClient.setUp)
         if self.onOutReceived is not None:
             d, self.onOutReceived = self.onOutReceived, None
             d.callback(data)
@@ -509,7 +509,7 @@ class CFTPClientTestBase(SFTPTestBase):
 
 
 
-class OurServerCmdLineClientTests(CFTPClientTestBase):
+class TestOurServerCmdLineClient(CFTPClientTestBase):
 
     def setUp(self):
         CFTPClientTestBase.setUp(self)
@@ -841,7 +841,7 @@ class OurServerCmdLineClientTests(CFTPClientTestBase):
 
 
 
-class OurServerBatchFileTests(CFTPClientTestBase):
+class TestOurServerBatchFile(CFTPClientTestBase):
     def setUp(self):
         CFTPClientTestBase.setUp(self)
         self.startServer()
@@ -929,7 +929,7 @@ exit
 
 
 
-class OurServerSftpClientTests(CFTPClientTestBase):
+class TestOurServerSftpClient(CFTPClientTestBase):
     """
     Test the sftp server against sftp command line client.
     """
@@ -981,12 +981,12 @@ class OurServerSftpClientTests(CFTPClientTestBase):
 if unix is None or Crypto is None or pyasn1 is None or interfaces.IReactorProcess(reactor, None) is None:
     if _reason is None:
         _reason = "don't run w/o spawnProcess or PyCrypto or pyasn1"
-    OurServerCmdLineClientTests.skip = _reason
-    OurServerBatchFileTests.skip = _reason
-    OurServerSftpClientTests.skip = _reason
+    TestOurServerCmdLineClient.skip = _reason
+    TestOurServerBatchFile.skip = _reason
+    TestOurServerSftpClient.skip = _reason
     StdioClientTests.skip = _reason
     SSHSessionTests.skip = _reason
 else:
     from twisted.python.procutils import which
     if not which('sftp'):
-        OurServerSftpClientTests.skip = "no sftp command-line client available"
+        TestOurServerSftpClient.skip = "no sftp command-line client available"

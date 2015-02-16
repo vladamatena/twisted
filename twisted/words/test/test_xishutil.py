@@ -53,7 +53,7 @@ class OrderedCallbackTracker:
 
 
 
-class EventDispatcherTests(unittest.TestCase):
+class EventDispatcherTest(unittest.TestCase):
     """
     Tests for L{EventDispatcher}.
     """
@@ -308,7 +308,7 @@ class EventDispatcherTests(unittest.TestCase):
 
 
 
-class XmlPipeTests(unittest.TestCase):
+class XmlPipeTest(unittest.TestCase):
     """
     Tests for L{twisted.words.xish.utility.XmlPipe}.
     """

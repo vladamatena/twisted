@@ -10,10 +10,6 @@ import StringIO
 
 from twisted.web import microdom
 from twisted.web.microdom import getElementsByTagName, escape, unescape
-# These modules are imported here as a shortcut.
-escape
-getElementsByTagName
-
 
 
 class NodeLookupError(Exception):

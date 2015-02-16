@@ -76,7 +76,7 @@ print "cgi output"
 class PythonScript(twcgi.FilteredScript):
     filter = sys.executable
 
-class CGITests(unittest.TestCase):
+class CGI(unittest.TestCase):
     """
     Tests for L{twcgi.FilteredScript}.
     """

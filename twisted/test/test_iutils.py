@@ -112,6 +112,7 @@ class ProcessUtilsTests(unittest.TestCase):
         stdout, the data written to the child's stderr, and the exit status of
         the child.
         """
+        exe = sys.executable
         scriptFile = self.makeSourceFile([
             "import sys",
             "sys.stdout.write('hello world!\\n')",

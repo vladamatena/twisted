@@ -26,7 +26,7 @@ from twisted.python import randbytes
 from twisted.trial import unittest
 
 
-class HelpersTests(unittest.TestCase):
+class HelpersTestCase(unittest.TestCase):
 
     if Crypto is None:
         skip = "cannot run w/o PyCrypto"
@@ -100,7 +100,7 @@ class HelpersTests(unittest.TestCase):
         self.assertRaises(keys.BadKeyError, keys.objectType, None)
 
 
-class KeyTests(unittest.TestCase):
+class KeyTestCase(unittest.TestCase):
 
     if Crypto is None:
         skip = "cannot run w/o PyCrypto"
