@@ -29,8 +29,9 @@ class LegacyLogObserverWrapper(object):
 
     def __init__(self, legacyObserver):
         """
-        @param legacyObserver: an L{twisted.python.log.ILogObserver} to which
-            this observer will forward events.
+        @param legacyObserver: a legacy observer to which this observer will
+            forward events.
+        @type legacyObserver: L{twisted.python.log.ILogObserver}
         """
         self.legacyObserver = legacyObserver
 
@@ -46,24 +47,30 @@ class LegacyLogObserverWrapper(object):
         """
         Forward events to the legacy observer after editing them to
         ensure compatibility.
+
+        @param event: an event
+        @type event: L{dict}
         """
 
         # Twisted's logging supports indicating a python log level, so let's
         # provide the equivalent to our logging levels.
-        level = event.get("log_level", None)
-        if level in toStdlibLogLevelMapping:
-            event["logLevel"] = toStdlibLogLevelMapping[level]
+        if "logLevel" not in event:
+            level = event.get("log_level", None)
+            if level in toStdlibLogLevelMapping:
+                event["logLevel"] = toStdlibLogLevelMapping[level]
 
         # The "message" key is required by textFromEventDict()
         if "message" not in event:
             event["message"] = ()
 
-        event["time"] = event["log_time"]
+        if "time" not in event:
+            event["time"] = event["log_time"]
 
-        event["system"] = event.get("log_system", "-")
+        if "system" not in event:
+            event["system"] = event.get("log_system", "-")
 
         # Format new style -> old style
-        if event.get("log_format", None) is not None and "format" not in event:
+        if "format" not in event and event.get("log_format", None) is not None:
             # Create an object that implements __str__() in order to defer the
             # work of formatting until it's needed by a legacy log observer.
             event["format"] = "%(log_legacy)s"
@@ -71,9 +78,12 @@ class LegacyLogObserverWrapper(object):
 
         # From log.failure() -> isError blah blah
         if "log_failure" in event:
-            event["failure"] = event["log_failure"]
-            event["isError"] = 1
-            event["why"] = formatEvent(event)
+            if "failure" not in event:
+                event["failure"] = event["log_failure"]
+            if "isError" not in event:
+                event["isError"] = 1
+            if "why" not in event:
+                event["why"] = formatEvent(event)
         elif "isError" not in event:
             event["isError"] = 0
 
