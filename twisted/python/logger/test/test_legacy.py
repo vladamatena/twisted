@@ -62,7 +62,8 @@ class LegacyLogObserverWrapperTests(unittest.TestCase):
 
     def observe(self, event):
         """
-        Send an event to a wrapped legacy observer.
+        Send an event to a wrapped legacy observer and capture the event as
+        seen by that observer.
 
         @param event: an event
         @type event: L{dict}
@@ -106,22 +107,26 @@ class LegacyLogObserverWrapperTests(unittest.TestCase):
 
     def test_forward(self):
         """
-        Basic forwarding.
+        Basic forwarding: event keys as observed by a legacy observer are the
+        same.
         """
         self.forwardAndVerify(dict(foo=1, bar=2))
 
 
     def test_time(self):
         """
-        Translate: C{"log_time"} -> C{"time"}
+        The new-style C{"log_time"} key is copied to the old-style C{"time"}
+        key.
         """
-        event = self.forwardAndVerify({})
-        self.assertEqual(event["log_time"], event["time"])
+        stamp = time()
+        event = self.forwardAndVerify(dict(log_time=stamp))
+        self.assertEqual(event["time"], stamp)
 
 
     def test_system(self):
         """
-        Translate: C{"log_system"} -> C{"system"}
+        The new-style C{"log_system"} key is copied to the old-style
+        C{"system"} key.
         """
         event = self.forwardAndVerify(dict(log_system="foo"))
         self.assertEquals(event["system"], "foo")
@@ -129,15 +134,22 @@ class LegacyLogObserverWrapperTests(unittest.TestCase):
 
     def test_systemNone(self):
         """
-        If C{"log_system"} is C{None}, C{"system"} is C{"-"}.
+        If the new-style C{"log_system"} key is absent, the old-style
+        C{"system"} key is set to C{"-"}.
         """
-        event = self.forwardAndVerify(dict(log_system="foo"))
-        self.assertEqual(event["system"], "foo")
+        # Don't use forwardAndVerify(), since that's sets log_system.
+        event = dict(log_time=time())
+        observed = self.observe(dict(event))
+        self.assertEqual(observed["system"], "-")
 
 
     def test_pythonLogLevel(self):
         """
-        Python log level is not added.
+        The new-style C{"log_level"} key is not copied to the old-style
+        C{"logLevel"} key.
+
+        Events are forwarded to from the old module to the new module, and
+        we don't want to add unexpected keys to old-style events.
         """
         event = self.forwardAndVerify(dict(log_level=LogLevel.info))
         self.assertNotIn("logLevel", event)
@@ -151,23 +163,24 @@ class LegacyLogObserverWrapperTests(unittest.TestCase):
         this was not a requirement.
         """
         event = self.forwardAndVerify(dict(
-            log_level=LogLevel.warn,
-            logLevel="WARNING",  # (py_logging.WARNING is 30)
+            logLevel="WARNING",  # py_logging.WARNING is 30
         ))
         self.assertEquals(event["logLevel"], "WARNING")
 
 
     def test_message(self):
         """
-        C{"message"} key is added.
+        The old-style C{"message"} key is added, even if no new-style
+        C{"log_format"} is given, as it is required, but may be empty.
         """
         event = self.forwardAndVerify(dict())
-        self.assertEquals(event["message"], ())
+        self.assertEquals(event["message"], ())  # "message" is a tuple
 
 
     def test_format(self):
         """
-        Formatting is translated properly.
+        Formatting is translated such that text is rendered correctly, even
+        though old-style logging doesn't use PEP 3101 formatting.
         """
         event = self.forwardAndVerify(
             dict(log_format="Hello, {who}!", who="world")
@@ -180,17 +193,17 @@ class LegacyLogObserverWrapperTests(unittest.TestCase):
 
     def test_failure(self):
         """
-        Failures are handled, including setting isError and why.
+        Captured failures in the new style set the old-style C{"failure"},
+        C{"isError"}, and C{"why"} keys.
         """
         failure = Failure(RuntimeError("nyargh!"))
-        why = "oopsie..."
         event = self.forwardAndVerify(dict(
             log_failure=failure,
-            log_format=why,
+            log_format="oopsie...",
         ))
         self.assertIdentical(event["failure"], failure)
         self.assertTrue(event["isError"])
-        self.assertEquals(event["why"], why)
+        self.assertEquals(event["why"], "oopsie...")
 
 
 
@@ -204,18 +217,20 @@ class PublishToNewObserverTests(unittest.TestCase):
         self.observer = self.events.append
 
 
-    def legacyEvent(self, *message, **kw):
+    def legacyEvent(self, *message, **values):
         """
         Return a basic old-style event as would be created by L{legacyLog.msg}.
 
         @param message: a message event value in the legacy event format
+        @type message: L{tuple} of L{bytes}
 
-        @param kw: additional event values in the legacy event format
+        @param values: additional event values in the legacy event format
+        @type event: L{dict}
 
         @return: a legacy event
         """
         event = (context.get(legacyLog.ILogContext) or {}).copy()
-        event.update(kw)
+        event.update(values)
         event["message"] = message
         event["time"] = time()
         return event
@@ -233,7 +248,8 @@ class PublishToNewObserverTests(unittest.TestCase):
 
     def test_time(self):
         """
-        The C{"time"} key should get copied to C{"log_time"}.
+        The old-style C{"time"} key is copied to the new-style C{"log_time"}
+        key.
         """
         publishToNewObserver(
             self.observer, self.legacyEvent(), legacyLog.textFromEventDict
@@ -245,8 +261,8 @@ class PublishToNewObserverTests(unittest.TestCase):
 
     def test_message(self):
         """
-        An adapted old-style event should format as text in the same way as the
-        given C{textFromEventDict} callable would format it.
+        An published old-style event should format as text in the same way as
+        the given C{textFromEventDict} callable would format it.
         """
         def textFromEventDict(event):
             return "".join(reversed(" ".join(event["message"])))
@@ -260,7 +276,7 @@ class PublishToNewObserverTests(unittest.TestCase):
 
     def test_defaultLogLevel(self):
         """
-        Adapted event should have log level of L{LogLevel.info}.
+        Published event should have log level of L{LogLevel.info}.
         """
         publishToNewObserver(
             self.observer, self.legacyEvent(), legacyLog.textFromEventDict
@@ -270,8 +286,8 @@ class PublishToNewObserverTests(unittest.TestCase):
 
     def test_isError(self):
         """
-        If C{"isError"} is set to C{1} on the legacy event, the C{"log_level"}
-        key should get set to L{LogLevel.critical}.
+        If C{"isError"} is set to C{1} (true) on the legacy event, the
+        C{"log_level"} key should get set to L{LogLevel.critical}.
         """
         publishToNewObserver(
             self.observer,
@@ -283,9 +299,9 @@ class PublishToNewObserverTests(unittest.TestCase):
 
     def test_stdlibLogLevel(self):
         """
-        If C{"logLevel"} is set to a standard library logging level on the
-        legacy event, the C{"log_level"} key should get set to the
-        corresponding level.
+        If the old-style C{"logLevel"} key is set to a standard library logging
+        level on the, the new-style C{"log_level"} key should get set to the
+        corresponding log level.
         """
         publishToNewObserver(
             self.observer,
@@ -297,7 +313,8 @@ class PublishToNewObserverTests(unittest.TestCase):
 
     def test_defaultNamespace(self):
         """
-        Adapted event should have a namespace of C{"log_legacy"}.
+        Published event should have a namespace of C{"log_legacy"} to indicate
+        that it was forwarded from legacy logging.
         """
         publishToNewObserver(
             self.observer, self.legacyEvent(), legacyLog.textFromEventDict
@@ -307,7 +324,8 @@ class PublishToNewObserverTests(unittest.TestCase):
 
     def test_system(self):
         """
-        The C{"system"} key should get copied to C{"log_system"}.
+        The old-style C{"system"} key is copied to the new-style
+        C{"log_system"} key.
         """
         publishToNewObserver(
             self.observer, self.legacyEvent(), legacyLog.textFromEventDict
