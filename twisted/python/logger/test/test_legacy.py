@@ -123,6 +123,16 @@ class LegacyLogObserverWrapperTests(unittest.TestCase):
         self.assertEqual(event["time"], stamp)
 
 
+    def test_timeAlreadySet(self):
+        """
+        The new-style C{"log_time"} key does not step on a pre-existing
+        old-style C{"time"} key.
+        """
+        stamp = time()
+        event = self.forwardAndVerify(dict(log_time=stamp + 1, time=stamp))
+        self.assertEqual(event["time"], stamp)
+
+
     def test_system(self):
         """
         The new-style C{"log_system"} key is copied to the old-style
@@ -132,7 +142,16 @@ class LegacyLogObserverWrapperTests(unittest.TestCase):
         self.assertEquals(event["system"], "foo")
 
 
-    def test_systemNone(self):
+    def test_systemAlreadySet(self):
+        """
+        The new-style C{"log_system"} key does not step on a pre-existing
+        old-style C{"system"} key.
+        """
+        event = self.forwardAndVerify(dict(log_system="foo", system="bar"))
+        self.assertEqual(event["system"], "bar")
+
+
+    def test_noSystem(self):
         """
         If the new-style C{"log_system"} key is absent, the old-style
         C{"system"} key is set to C{"-"}.
@@ -143,9 +162,9 @@ class LegacyLogObserverWrapperTests(unittest.TestCase):
         self.assertEqual(observed["system"], "-")
 
 
-    def test_pythonLogLevel(self):
+    def test_pythonLogLevelNotSet(self):
         """
-        The new-style C{"log_level"} key is not copied to the old-style
+        The new-style C{"log_level"} key is not translated to the old-style
         C{"logLevel"} key.
 
         Events are forwarded to from the old module to the new module, and
@@ -177,6 +196,14 @@ class LegacyLogObserverWrapperTests(unittest.TestCase):
         self.assertEquals(event["message"], ())  # "message" is a tuple
 
 
+    def test_messageAlreadySet(self):
+        """
+        The old-style C{"message"} key is not modified if it already exists.
+        """
+        event = self.forwardAndVerify(dict(message=("foo", "bar")))
+        self.assertEqual(event["message"], ("foo", "bar"))
+
+
     def test_format(self):
         """
         Formatting is translated such that text is rendered correctly, even
@@ -191,19 +218,72 @@ class LegacyLogObserverWrapperTests(unittest.TestCase):
         )
 
 
+    def test_formatAlreadySet(self):
+        """
+        Formatting is not altered if the old-style C{"format"} key already
+        exists.
+        """
+        event = self.forwardAndVerify(
+            dict(log_format="Hello!", format="Howdy!")
+        )
+        self.assertEquals(legacyLog.textFromEventDict(event), "Howdy!")
+
+
+    def eventWithFailure(self, **values):
+        """
+        Create an new-style event with a captured failure.
+
+        @param values: Additional values to include in the event.
+        @type values: L{dict}
+
+        @return: the new event
+        @rtype: L{dict}
+        """
+        failure = Failure(RuntimeError("nyargh!"))
+        return self.forwardAndVerify(dict(
+            log_failure=failure,
+            log_format="oopsie...",
+            **values
+        ))
+
+
     def test_failure(self):
         """
         Captured failures in the new style set the old-style C{"failure"},
         C{"isError"}, and C{"why"} keys.
         """
-        failure = Failure(RuntimeError("nyargh!"))
-        event = self.forwardAndVerify(dict(
-            log_failure=failure,
-            log_format="oopsie...",
-        ))
-        self.assertIdentical(event["failure"], failure)
+        event = self.eventWithFailure()
+        self.assertIdentical(event["failure"], event["log_failure"])
         self.assertTrue(event["isError"])
         self.assertEquals(event["why"], "oopsie...")
+
+
+    def test_failureAlreadySet(self):
+        """
+        Captured failures in the new style do not step on a pre-existing
+        old-style C{"failure"} key.
+        """
+        failure = Failure(RuntimeError("Weak salsa!"))
+        event = self.eventWithFailure(failure=failure)
+        self.assertIdentical(event["failure"], failure)
+
+
+    def test_isErrorAlreadySet(self):
+        """
+        Captured failures in the new style do not step on a pre-existing
+        old-style C{"isError"} key.
+        """
+        event = self.eventWithFailure(isError=0)
+        self.assertEquals(event["isError"], 0)
+
+
+    def test_whyAlreadySet(self):
+        """
+        Captured failures in the new style do not step on a pre-existing
+        old-style C{"failure"} key.
+        """
+        event = self.eventWithFailure(why="blah")
+        self.assertEquals(event["why"], "blah")
 
 
 
