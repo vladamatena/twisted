@@ -167,8 +167,9 @@ class LegacyLogObserverWrapperTests(unittest.TestCase):
         The new-style C{"log_level"} key is not translated to the old-style
         C{"logLevel"} key.
 
-        Events are forwarded to from the old module to the new module, and
-        we don't want to add unexpected keys to old-style events.
+        Events are forwarded from the old module from to new module and are
+        then seen by old-style observers.
+        We don't want to add unexpected keys to old-style events.
         """
         event = self.forwardAndVerify(dict(log_level=LogLevel.info))
         self.assertNotIn("logLevel", event)
