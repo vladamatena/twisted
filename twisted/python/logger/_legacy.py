@@ -118,13 +118,17 @@ def publishToNewObserver(observer, eventDict, textFromEventDict):
 
     if "log_level" not in eventDict:
         if "logLevel" in eventDict:
-            level = fromStdlibLogLevelMapping[eventDict["logLevel"]]
+            try:
+                level = fromStdlibLogLevelMapping[eventDict["logLevel"]]
+            except KeyError:
+                level = None
         elif eventDict["isError"]:
             level = LogLevel.critical
         else:
             level = LogLevel.info
 
-        eventDict["log_level"] = level
+        if level is not None:
+            eventDict["log_level"] = level
 
     if "log_namespace" not in eventDict:
         eventDict["log_namespace"] = u"log_legacy"

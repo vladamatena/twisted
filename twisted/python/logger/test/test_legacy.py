@@ -381,8 +381,8 @@ class PublishToNewObserverTests(unittest.TestCase):
     def test_stdlibLogLevel(self):
         """
         If the old-style C{"logLevel"} key is set to a standard library logging
-        level on the, the new-style C{"log_level"} key should get set to the
-        corresponding log level.
+        level, using a predefined (L{int}) constant, the new-style
+        C{"log_level"} key should get set to the corresponding log level.
         """
         publishToNewObserver(
             self.observer,
@@ -390,6 +390,34 @@ class PublishToNewObserverTests(unittest.TestCase):
             legacyLog.textFromEventDict
         )
         self.assertEquals(self.events[0]["log_level"], LogLevel.warn)
+
+
+    def test_stdlibLogLevelWithString(self):
+        """
+        If the old-style C{"logLevel"} key is set to a standard library logging
+        level, using a string value, the new-style C{"log_level"} key should
+        get set to the corresponding log level.
+        """
+        publishToNewObserver(
+            self.observer,
+            self.legacyEvent(logLevel="WARNING"),
+            legacyLog.textFromEventDict
+        )
+        self.assertEquals(self.events[0]["log_level"], LogLevel.warn)
+
+
+    def test_stdlibLogLevelWithGarbage(self):
+        """
+        If the old-style C{"logLevel"} key is set to a standard library logging
+        level, using an unknown value, the new-style C{"log_level"} key should
+        not get set.
+        """
+        publishToNewObserver(
+            self.observer,
+            self.legacyEvent(logLevel="Foo!!!!!"),
+            legacyLog.textFromEventDict
+        )
+        self.assertNotIn("log_level", self.events[0])
 
 
     def test_defaultNamespace(self):
