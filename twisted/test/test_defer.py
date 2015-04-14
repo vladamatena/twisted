@@ -75,11 +75,9 @@ class UtilTests(unittest.TestCase):
         """
         L{defer.logError} returns the given error.
         """
-        try:
-            raise RuntimeError()
-        except RuntimeError:
-            error = failure.Failure()
+        error = failure.Failure(RuntimeError())
         result = defer.logError(error)
+        self.flushLoggedErrors(RuntimeError)
 
         self.assertIs(error, result)
 
@@ -88,15 +86,11 @@ class UtilTests(unittest.TestCase):
         """
         L{defer.logError} logs the given error.
         """
-        errors = []
-        self.patch(defer.log, "error", errors.append)
-        try:
-            raise RuntimeError()
-        except RuntimeError:
-            f = failure.Failure()
-        defer.logError(f)
+        error = failure.Failure(RuntimeError())
+        defer.logError(error)
+        errors = self.flushLoggedErrors(RuntimeError)
 
-        self.assertEquals(errors[0], f)
+        self.assertEquals(errors, [error])
 
 
 

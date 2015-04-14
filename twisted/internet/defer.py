@@ -54,7 +54,7 @@ class TimeoutError(Exception):
 
 
 def logError(err):
-    log.error(err)
+    log.failure("{log_failure}", err)
     return err
 
 
