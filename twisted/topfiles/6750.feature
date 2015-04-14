@@ -1,1 +1,3 @@
-The new package twisted.python.logger provides an improved logging framework.  The module twisted.python.log in now (compatibly) implemented using the new framework.  The new logger HOWTO documents the new framework.
+The new package twisted.logger provides a new, fully tested, and feature-rich logging framework.
+The old module twisted.python.log is now implemented using the new framework.
+The new logger HOWTO documents the new framework.
