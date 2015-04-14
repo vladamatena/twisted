@@ -115,6 +115,25 @@ class FileLogObserverTests(TestCase):
             )
 
 
+    def test_observeFailureThatRaisesInGetTraceback(self):
+        """
+        If the C{"log_failure"} key exists in an event, and contains an object
+        that raises when you call it's C{getTraceback()}, then the observer
+        appends a message noting the problem, instead of raising.
+        """
+        with StringIO() as fileHandle:
+            observer = FileLogObserver(fileHandle, lambda e: unicode(e))
+
+            event = dict(log_failure=object())  # object has no getTraceback()
+            observer(event)
+            output = fileHandle.getvalue()
+            expected = (
+                "{0}\n(UNABLE TO OBTAIN TRACEBACK FROM EVENT)\n"
+                .format(unicode(event))
+            )
+            self.assertEqual(output, expected)
+
+
 
 class TextFileLogObserverTests(TestCase):
     """
