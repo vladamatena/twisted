@@ -83,7 +83,7 @@ class LogBeginner(object):
             self._initialBuffer,
             FilteringLogObserver(
                 FileLogObserver(
-                    errorStream, lambda event: formatEvent(event) + "\n"
+                    errorStream, lambda event: formatEvent(event) + u"\n"
                 ),
                 [LogLevelFilterPredicate(defaultLogLevel=LogLevel.critical)]
             )

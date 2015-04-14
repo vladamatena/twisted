@@ -47,8 +47,9 @@ def formatEvent(event):
             # If we get bytes, assume it's UTF-8 bytes
             format = format.decode("utf-8")
         elif not isinstance(format, unicode):
-            raise TypeError("Log format must be unicode or bytes, not {0!r}"
-                            .format(format))
+            raise TypeError(
+                "Log format must be unicode or bytes, not {0!r}".format(format)
+            )
 
         return formatWithCall(format, event)
 
@@ -84,8 +85,10 @@ def formatUnformattableEvent(event, error):
         # logger.
         failure = Failure()
 
-        text = u", ".join(u" = ".join((safe_repr(key), safe_repr(value)))
-                          for key, value in event.items())
+        text = u", ".join(
+            u" = ".join((safe_repr(key), safe_repr(value)))
+            for key, value in event.items()
+        )
 
         return (
             u"MESSAGE LOST: unformattable object logged: {error}\n"
