@@ -56,7 +56,7 @@ class FileLogObserver(object):
             try:
                 traceback = event["log_failure"].getTraceback()
             except Exception:
-                traceback = u"(UNABLE TO OBTAIN TRACEBACK FROM EVENT)"
+                traceback = u"(UNABLE TO OBTAIN TRACEBACK FROM EVENT)\n"
             text = u"\n".join((text, traceback))
 
         if self._encoding is not None:

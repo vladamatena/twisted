@@ -128,7 +128,7 @@ class FileLogObserverTests(TestCase):
             observer(event)
             output = fileHandle.getvalue()
             expected = (
-                "{}\n(UNABLE TO OBTAIN TRACEBACK FROM EVENT)"
+                "{}\n(UNABLE TO OBTAIN TRACEBACK FROM EVENT)\n"
                 .format(unicode(event))
             )
             self.assertEqual(output, expected)
