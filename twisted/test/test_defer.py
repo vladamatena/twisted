@@ -71,6 +71,10 @@ class ImmediateFailureMixin(object):
 
 
 class UtilTests(unittest.TestCase):
+    """
+    Tests for utility functions.
+    """
+
     def test_logErrorReturnsError(self):
         """
         L{defer.logError} returns the given error.
