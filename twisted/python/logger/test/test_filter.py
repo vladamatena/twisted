@@ -148,62 +148,67 @@ class FilteringLogObserverTests(unittest.TestCase):
             extra = [eventsNotSeen.append]
         else:
             extra = []
-        filteringObserver = FilteringLogObserver(trackingObserver, predicates,
-                                                 *extra)
+        filteringObserver = FilteringLogObserver(
+            trackingObserver, predicates, *extra
+        )
         for e in events:
             filteringObserver(e)
 
         if extra:
-            return ([e["count"] for e in eventsSeen],
-                    [e["count"] for e in eventsNotSeen])
+            return (
+                [e["count"] for e in eventsSeen],
+                [e["count"] for e in eventsNotSeen],
+            )
         return [e["count"] for e in eventsSeen]
 
 
-    def test_shouldLogEvent_noFilters(self):
+    def test_shouldLogEventNoFilters(self):
         """
         No filters: all events come through.
         """
-        self.assertEquals(self.filterWith([]), [0, 1, 2, 3])
+        self.assertEqual(self.filterWith([]), [0, 1, 2, 3])
 
 
-    def test_shouldLogEvent_noFilter(self):
+    def test_shouldLogEventNoFilter(self):
         """
         Filter with negative predicate result.
         """
-        self.assertEquals(self.filterWith(["notTwo"]), [0, 1, 3])
+        self.assertEqual(self.filterWith(["notTwo"]), [0, 1, 3])
 
 
-    def test_shouldLogEvent_otherObserver(self):
+    def test_shouldLogEventOtherObserver(self):
         """
         Filtered results get sent to the other observer, if passed.
         """
-        self.assertEquals(self.filterWith(["notTwo"], True), ([0, 1, 3], [2]))
+        self.assertEqual(self.filterWith(["notTwo"], True), ([0, 1, 3], [2]))
 
 
-    def test_shouldLogEvent_yesFilter(self):
+    def test_shouldLogEventYesFilter(self):
         """
         Filter with positive predicate result.
         """
-        self.assertEquals(self.filterWith(["twoPlus"]), [0, 1, 2, 3])
+        self.assertEqual(self.filterWith(["twoPlus"]), [0, 1, 2, 3])
 
 
-    def test_shouldLogEvent_yesNoFilter(self):
+    def test_shouldLogEventYesNoFilter(self):
         """
         Series of filters with positive and negative predicate results.
         """
-        self.assertEquals(self.filterWith(["twoPlus", "no"]), [2, 3])
+        self.assertEqual(self.filterWith(["twoPlus", "no"]), [2, 3])
 
 
-    def test_shouldLogEvent_yesYesNoFilter(self):
+    def test_shouldLogEventYesYesNoFilter(self):
         """
         Series of filters with positive, positive and negative predicate
         results.
         """
-        self.assertEquals(self.filterWith(["twoPlus", "twoMinus", "no"]),
-                          [0, 1, 2, 3])
+        self.assertEqual(
+            self.filterWith(["twoPlus", "twoMinus", "no"]),
+            [0, 1, 2, 3]
+        )
 
 
-    def test_shouldLogEvent_badPredicateResult(self):
+    def test_shouldLogEventBadPredicateResult(self):
         """
         Filter with invalid predicate result.
         """
@@ -218,8 +223,10 @@ class FilteringLogObserverTests(unittest.TestCase):
 
         def callWithPredicateResult(result):
             seen = []
-            observer = FilteringLogObserver(lambda e: seen.append(e),
-                                            (lambda e: result,))
+            observer = FilteringLogObserver(
+                lambda e: seen.append(e),
+                (lambda e: result,)
+            )
             observer(e)
             return seen
 
@@ -238,8 +245,8 @@ class FilteringLogObserverTests(unittest.TestCase):
         oNo = lambda e: None
 
         def testObserver(e):
-            self.assertIdentical(e, event)
-            self.assertEquals(
+            self.assertIs(e, event)
+            self.assertEqual(
                 event["log_trace"],
                 [
                     (publisher, yesFilter),
@@ -276,15 +283,15 @@ class LogLevelFilterPredicateTests(unittest.TestCase):
         """
         predicate = LogLevelFilterPredicate()
 
-        self.assertEquals(
+        self.assertEqual(
             predicate.logLevelForNamespace(None),
             predicate.defaultLogLevel
         )
-        self.assertEquals(
+        self.assertEqual(
             predicate.logLevelForNamespace(""),
             predicate.defaultLogLevel
         )
-        self.assertEquals(
+        self.assertEqual(
             predicate.logLevelForNamespace("rocker.cool.namespace"),
             predicate.defaultLogLevel
         )
@@ -300,27 +307,27 @@ class LogLevelFilterPredicateTests(unittest.TestCase):
         predicate.setLogLevelForNamespace("twext.web2", LogLevel.debug)
         predicate.setLogLevelForNamespace("twext.web2.dav", LogLevel.warn)
 
-        self.assertEquals(
+        self.assertEqual(
             predicate.logLevelForNamespace(None),
             LogLevel.error
         )
-        self.assertEquals(
+        self.assertEqual(
             predicate.logLevelForNamespace("twisted"),
             LogLevel.error
         )
-        self.assertEquals(
+        self.assertEqual(
             predicate.logLevelForNamespace("twext.web2"),
             LogLevel.debug
         )
-        self.assertEquals(
+        self.assertEqual(
             predicate.logLevelForNamespace("twext.web2.dav"),
             LogLevel.warn
         )
-        self.assertEquals(
+        self.assertEqual(
             predicate.logLevelForNamespace("twext.web2.dav.test"),
             LogLevel.warn
         )
-        self.assertEquals(
+        self.assertEqual(
             predicate.logLevelForNamespace("twext.web2.dav.test1.test2"),
             LogLevel.warn
         )
@@ -355,23 +362,23 @@ class LogLevelFilterPredicateTests(unittest.TestCase):
 
         predicate.clearLogLevels()
 
-        self.assertEquals(
+        self.assertEqual(
             predicate.logLevelForNamespace("twisted"),
             predicate.defaultLogLevel
         )
-        self.assertEquals(
+        self.assertEqual(
             predicate.logLevelForNamespace("twext.web2"),
             predicate.defaultLogLevel
         )
-        self.assertEquals(
+        self.assertEqual(
             predicate.logLevelForNamespace("twext.web2.dav"),
             predicate.defaultLogLevel
         )
-        self.assertEquals(
+        self.assertEqual(
             predicate.logLevelForNamespace("twext.web2.dav.test"),
             predicate.defaultLogLevel
         )
-        self.assertEquals(
+        self.assertEqual(
             predicate.logLevelForNamespace("twext.web2.dav.test1.test2"),
             predicate.defaultLogLevel
         )
@@ -389,7 +396,7 @@ class LogLevelFilterPredicateTests(unittest.TestCase):
 
         def checkPredicate(namespace, level, expectedResult):
             event = dict(log_namespace=namespace, log_level=level)
-            self.assertEquals(expectedResult, predicate(event))
+            self.assertEqual(expectedResult, predicate(event))
 
         checkPredicate("", LogLevel.debug, PredicateResult.no)
         checkPredicate("", LogLevel.error, PredicateResult.maybe)

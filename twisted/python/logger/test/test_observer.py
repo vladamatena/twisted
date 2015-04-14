@@ -39,7 +39,7 @@ class LogPublisherTests(unittest.TestCase):
         o2 = lambda e: None
 
         publisher = LogPublisher(o1, o2)
-        self.assertEquals(set((o1, o2)), set(publisher._observers))
+        self.assertEqual(set((o1, o2)), set(publisher._observers))
 
 
     def test_addObserver(self):
@@ -52,7 +52,7 @@ class LogPublisherTests(unittest.TestCase):
 
         publisher = LogPublisher(o1, o2)
         publisher.addObserver(o3)
-        self.assertEquals(set((o1, o2, o3)), set(publisher._observers))
+        self.assertEqual(set((o1, o2, o3)), set(publisher._observers))
 
 
     def test_addObserverNotCallable(self):
@@ -74,7 +74,7 @@ class LogPublisherTests(unittest.TestCase):
 
         publisher = LogPublisher(o1, o2, o3)
         publisher.removeObserver(o2)
-        self.assertEquals(set((o1, o3)), set(publisher._observers))
+        self.assertEqual(set((o1, o3)), set(publisher._observers))
 
 
     def test_removeObserverNotRegistered(self):
@@ -88,7 +88,7 @@ class LogPublisherTests(unittest.TestCase):
 
         publisher = LogPublisher(o1, o2)
         publisher.removeObserver(o3)
-        self.assertEquals(set((o1, o2)), set(publisher._observers))
+        self.assertEqual(set((o1, o2)), set(publisher._observers))
 
 
     def test_fanOut(self):
@@ -114,8 +114,8 @@ class LogPublisherTests(unittest.TestCase):
 
     def test_observerRaises(self):
         """
-        Observer raises an exception during fan out: a failure should be
-        logged, but not re-raised.  Life goes on.
+        Observer raises an exception during fan out: a failure is logged, but
+        not re-raised.  Life goes on.
         """
         event = dict(foo=1, bar=2)
         exception = RuntimeError("ARGH! EVIL DEATH!")
@@ -141,17 +141,17 @@ class LogPublisherTests(unittest.TestCase):
             e["log_failure"] for e in collector
             if "log_failure" in e
         ]
-        self.assertEquals(len(errors), 1)
-        self.assertIdentical(errors[0].value, exception)
+        self.assertEqual(len(errors), 1)
+        self.assertIs(errors[0].value, exception)
         # Make sure the exceptional observer does not receive its own error.
-        self.assertEquals(len(events), 1)
+        self.assertEqual(len(events), 1)
 
 
     def test_observerRaisesAndLoggerHatesMe(self):
         """
         Observer raises an exception during fan out and the publisher's Logger
-        pukes when the failure is reported.  Exception should still not
-        propagate back to the caller.
+        pukes when the failure is reported.  The exception does not propagate
+        back to the caller.
         """
         event = dict(foo=1, bar=2)
         exception = RuntimeError("ARGH! EVIL DEATH!")
@@ -186,5 +186,5 @@ class LogPublisherTests(unittest.TestCase):
         publisher = LogPublisher(o1, o2)
         publisher(event)
 
-        self.assertEquals(traces[1], ((publisher, o1),))
-        self.assertEquals(traces[2], ((publisher, o1), (publisher, o2)))
+        self.assertEqual(traces[1], ((publisher, o1),))
+        self.assertEqual(traces[2], ((publisher, o1), (publisher, o2)))

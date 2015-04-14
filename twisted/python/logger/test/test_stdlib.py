@@ -91,8 +91,8 @@ class STDLibLogObserverTests(unittest.TestCase):
         """
         records, output = self.logEvent({})
 
-        self.assertEquals(len(records), 1)
-        self.assertEquals(records[0].name, "twisted")
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0].name, "twisted")
 
 
     def test_levels(self):
@@ -124,51 +124,51 @@ class STDLibLogObserverTests(unittest.TestCase):
             events.append(event)
 
         records, output = self.logEvent(*events)
-        self.assertEquals(len(records), len(levelMapping))
+        self.assertEqual(len(records), len(levelMapping))
 
         # Check that each event has the correct level
         for i in range(len(records)):
-            self.assertEquals(records[i].levelno, events[i]["py_levelno"])
+            self.assertEqual(records[i].levelno, events[i]["py_levelno"])
 
 
     def test_callerInfo(self):
         """
-        C{pathname}, C{lineno}, C{exc_info}, C{func} should
-        be set properly on records.
+        C{pathname}, C{lineno}, C{exc_info}, C{func} is set properly on
+        records.
         """
         filename, logLine = nextLine()
         records, output = self.logEvent({})
 
-        self.assertEquals(len(records), 1)
-        self.assertEquals(records[0].pathname, filename)
-        self.assertEquals(records[0].lineno, logLine)
-        self.assertEquals(records[0].exc_info, None)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0].pathname, filename)
+        self.assertEqual(records[0].lineno, logLine)
+        self.assertEqual(records[0].exc_info, None)
 
         # Attribute "func" is missing from record, which is weird because it's
         # documented.
-        #self.assertEquals(records[0].func, "test_callerInfo")
+        # self.assertEqual(records[0].func, "test_callerInfo")
 
 
-    def test_basic_format(self):
+    def test_basicFormat(self):
         """
         Basic formattable event passes the format along correctly.
         """
         event = dict(log_format="Hello, {who}!", who="dude")
         records, output = self.logEvent(event)
 
-        self.assertEquals(len(records), 1)
-        self.assertEquals(str(records[0].msg), u"Hello, dude!")
-        self.assertEquals(records[0].args, ())
+        self.assertEqual(len(records), 1)
+        self.assertEqual(str(records[0].msg), u"Hello, dude!")
+        self.assertEqual(records[0].args, ())
 
 
-    def test_basic_formatRendered(self):
+    def test_basicFormatRendered(self):
         """
         Basic formattable event renders correctly.
         """
         event = dict(log_format="Hello, {who}!", who="dude")
         records, output = self.logEvent(event)
 
-        self.assertEquals(len(records), 1)
+        self.assertEqual(len(records), 1)
         self.assertTrue(output.endswith(u":Hello, dude!\n"),
                         repr(output))
 
@@ -179,8 +179,8 @@ class STDLibLogObserverTests(unittest.TestCase):
         """
         records, output = self.logEvent({})
 
-        self.assertEquals(len(records), 1)
-        self.assertEquals(str(records[0].msg), "")
+        self.assertEqual(len(records), 1)
+        self.assertEqual(str(records[0].msg), "")
 
 
 
