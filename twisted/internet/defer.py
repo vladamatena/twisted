@@ -54,7 +54,7 @@ class TimeoutError(Exception):
 
 
 def logError(err):
-    log.err(err)
+    log.error(err)
     return err
 
 
@@ -289,7 +289,7 @@ class Deferred:
         @rtype: a L{Deferred}
         """
         assert callable(callback)
-        assert errback == None or callable(errback)
+        assert errback is None or callable(errback)
         cbs = ((callback, callbackArgs, callbackKeywords),
                (errback or (passthru), errbackArgs, errbackKeywords))
         self.callbacks.append(cbs)
@@ -689,8 +689,8 @@ class DebugInfo:
                          isError=True)
             debugInfo = self._getDebugTracebacks()
             if debugInfo != '':
-                debugInfo = ("(debug: " + debugInfo + ")")
-            log.failure("{debugInfo}", self.failResult, debugInfo=debugInfo)
+                log.critical("(debug: {debugInfo})", debugInfo)
+            log.failure("{log_failure}", self.failResult)
 
 
 

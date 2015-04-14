@@ -191,9 +191,9 @@ class LogBeginnerTests(unittest.TestCase):
         Critical messages will be written as text to the error stream.
         """
         log = Logger(observer=self.publisher)
-        log.info('ignore this')
-        log.critical('a critical {message}', message="message")
-        self.assertEqual(self.errorStream.getvalue(), u'a critical message\n')
+        log.info("ignore this")
+        log.critical("a critical {message}", message="message")
+        self.assertEqual(self.errorStream.getvalue(), u"a critical message\n")
 
 
     def test_criticalLoggingStops(self):
@@ -204,7 +204,7 @@ class LogBeginnerTests(unittest.TestCase):
         log = Logger(observer=self.publisher)
         self.beginner.beginLoggingTo(())
         log.critical("another critical message")
-        self.assertEqual(self.errorStream.getvalue(), u'')
+        self.assertEqual(self.errorStream.getvalue(), u"")
 
 
     def test_beginLoggingToRedirectStandardIO(self):
@@ -259,7 +259,7 @@ class LogBeginnerTests(unittest.TestCase):
         self.sysModule.stdout.write(b"\x97\x9B\n")
         self.sysModule.stderr.write(b"\xBC\xFC\n")
         compareEvents(
-            self, x, [dict(message=u'\u674e'), dict(message=u'\u7469')]
+            self, x, [dict(message=u"\u674e"), dict(message=u"\u7469")]
         )
 
 
@@ -289,8 +289,12 @@ class LogBeginnerTests(unittest.TestCase):
         )
         compareEvents(
             self, x,
-            [dict(warning="another message",
-                  category=(DeprecationWarning.__module__ + '.' +
-                            DeprecationWarning.__name__),
-                  filename=__file__, lineno=2)]
+            [dict(
+                warning="another message",
+                category=(
+                    DeprecationWarning.__module__ + "." +
+                    DeprecationWarning.__name__
+                ),
+                filename=__file__, lineno=2,
+            )]
         )
