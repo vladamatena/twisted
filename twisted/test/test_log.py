@@ -294,6 +294,18 @@ class LogTest(unittest.SynchronousTestCase):
         self.assertIsInstance(errors[0], RuntimeError)
 
 
+    def test_publisherLogsStdout(self):
+        """
+        """
+        with StringIO() as f:
+            publisher = log.LogPublisher()
+            flo = log.FileLogObserver(f)
+            publisher._startLogging(flo, 1)
+            publisher.msg("Hello!")
+
+            raise RuntimeError(f.getvalue())
+
+
 
 class FakeFile(list):
 
@@ -564,7 +576,7 @@ class FileObserverTestCase(LogPublisherTestCaseMixin,
 
 
     def test_loggingAnObjectWithBroken__str__(self):
-        #HELLO, MCFLY
+        # HELLO, MCFLY
         self.lp.msg(EvilStr())
         self.assertEqual(len(self.out), 1)
         # Logging system shouldn't need to crap itself for this trivial case

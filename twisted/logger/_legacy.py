@@ -50,6 +50,9 @@ class LegacyLogObserverWrapper(object):
         @type event: L{dict}
         """
 
+        # if "log_legacyMessage" in event:
+        #     event["message"] = event["log_legacyMessage"]
+
         # The "message" key is required by textFromEventDict()
         if "message" not in event:
             event["message"] = ()
@@ -106,6 +109,9 @@ def publishToNewObserver(observer, eventDict, textFromEventDict):
 
     @return: L{None}
     """
+
+    # if "message" in eventDict:
+    #     eventDict["log_legacyMessage"] = eventDict["message"]
 
     if "log_time" not in eventDict:
         eventDict["log_time"] = eventDict["time"]
