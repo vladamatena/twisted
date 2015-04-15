@@ -226,7 +226,7 @@ def jsonFileLogObserver(outFile, recordSeparator=u"\x1e"):
         RS + JSON + NL
 
     C{JSON} is the serialized event, which is JSON text.  C{NL} is a newline
-    (C{u"\n"}).  C{RS} is a record separator.  By default, this is a single
+    (C{u"\\n"}).  C{RS} is a record separator.  By default, this is a single
     RS character (C{u"\\x1e"}), which makes the default output conform to the
     IETF draft document "draft-ietf-json-text-sequence-13".
 
