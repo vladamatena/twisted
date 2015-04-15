@@ -53,11 +53,13 @@ class SyslogObserverTests(TestCase):
         syslog priority, if that key is present in the event dictionary.
         """
         self.observer.emit({
-                'message': ('hello, world',), 'isError': False, 'system': '-',
-                'syslogPriority': stdsyslog.LOG_DEBUG})
+            'message': ('hello, world',), 'isError': False, 'system': '-',
+            'syslogPriority': stdsyslog.LOG_DEBUG
+        })
         self.assertEqual(
             self.events,
-            [(stdsyslog.LOG_DEBUG, '[-] hello, world')])
+            [(stdsyslog.LOG_DEBUG, '[-] hello, world')]
+        )
 
 
     def test_emitErrorPriority(self):
@@ -66,11 +68,13 @@ class SyslogObserverTests(TestCase):
         error.
         """
         self.observer.emit({
-                'message': ('hello, world',), 'isError': True, 'system': '-',
-                'failure': Failure(Exception("foo"))})
+            'message': ('hello, world',), 'isError': True, 'system': '-',
+            'failure': Failure(Exception("foo")),
+        })
         self.assertEqual(
             self.events,
-            [(stdsyslog.LOG_ALERT, '[-] hello, world')])
+            [(stdsyslog.LOG_ALERT, '[-] hello, world')]
+        )
 
 
     def test_emitCustomPriorityOverridesError(self):
@@ -79,12 +83,14 @@ class SyslogObserverTests(TestCase):
         it is specified even if the event dictionary represents an error.
         """
         self.observer.emit({
-                'message': ('hello, world',), 'isError': True, 'system': '-',
-                'syslogPriority': stdsyslog.LOG_NOTICE,
-                'failure': Failure(Exception("bar"))})
+            'message': ('hello, world',), 'isError': True, 'system': '-',
+            'syslogPriority': stdsyslog.LOG_NOTICE,
+            'failure': Failure(Exception("bar")),
+        })
         self.assertEqual(
             self.events,
-            [(stdsyslog.LOG_NOTICE, '[-] hello, world')])
+            [(stdsyslog.LOG_NOTICE, '[-] hello, world')]
+        )
 
 
     def test_emitCustomFacility(self):
@@ -93,11 +99,13 @@ class SyslogObserverTests(TestCase):
         syslog priority, if that key is present in the event dictionary.
         """
         self.observer.emit({
-                'message': ('hello, world',), 'isError': False, 'system': '-',
-                'syslogFacility': stdsyslog.LOG_CRON})
+            'message': ('hello, world',), 'isError': False, 'system': '-',
+            'syslogFacility': stdsyslog.LOG_CRON,
+        })
         self.assertEqual(
             self.events,
-            [(stdsyslog.LOG_INFO | stdsyslog.LOG_CRON, '[-] hello, world')])
+            [(stdsyslog.LOG_INFO | stdsyslog.LOG_CRON, '[-] hello, world')]
+        )
 
 
     def test_emitCustomSystem(self):
@@ -105,11 +113,14 @@ class SyslogObserverTests(TestCase):
         L{SyslogObserver.emit} uses the value of the C{'system'} key to prefix
         the logged message.
         """
-        self.observer.emit({'message': ('hello, world',), 'isError': False,
-            'system': 'nonDefaultSystem'})
+        self.observer.emit({
+            'message': ('hello, world',), 'isError': False,
+            'system': 'nonDefaultSystem',
+        })
         self.assertEqual(
             self.events,
-            [(stdsyslog.LOG_INFO, "[nonDefaultSystem] hello, world")])
+            [(stdsyslog.LOG_INFO, "[nonDefaultSystem] hello, world")]
+        )
 
 
     def test_emitMessage(self):
@@ -118,11 +129,13 @@ class SyslogObserverTests(TestCase):
         event dictionary it is passed to the syslog.
         """
         self.observer.emit({
-                'message': ('hello, world',), 'isError': False,
-                'system': '-'})
+            'message': ('hello, world',), 'isError': False,
+            'system': '-',
+        })
         self.assertEqual(
             self.events,
-            [(stdsyslog.LOG_INFO, "[-] hello, world")])
+            [(stdsyslog.LOG_INFO, "[-] hello, world")]
+        )
 
 
     def test_emitMultilineMessage(self):
@@ -130,12 +143,16 @@ class SyslogObserverTests(TestCase):
         Each line of a multiline message is emitted separately to the syslog.
         """
         self.observer.emit({
-                'message': ('hello,\nworld',), 'isError': False,
-                'system': '-'})
+            'message': ('hello,\nworld',), 'isError': False,
+            'system': '-',
+        })
         self.assertEqual(
             self.events,
-            [(stdsyslog.LOG_INFO, '[-] hello,'),
-             (stdsyslog.LOG_INFO, '[-] \tworld')])
+            [
+                (stdsyslog.LOG_INFO, '[-] hello,'),
+                (stdsyslog.LOG_INFO, '[-] \tworld'),
+            ]
+        )
 
 
     def test_emitStripsTrailingEmptyLines(self):
@@ -144,12 +161,16 @@ class SyslogObserverTests(TestCase):
         messages sent to the syslog.
         """
         self.observer.emit({
-                'message': ('hello,\nworld\n\n',), 'isError': False,
-                'system': '-'})
+            'message': ('hello,\nworld\n\n',), 'isError': False,
+            'system': '-',
+        })
         self.assertEqual(
             self.events,
-            [(stdsyslog.LOG_INFO, '[-] hello,'),
-             (stdsyslog.LOG_INFO, '[-] \tworld')])
+            [
+                (stdsyslog.LOG_INFO, '[-] hello,'),
+                (stdsyslog.LOG_INFO, '[-] \tworld'),
+            ]
+        )
 
 
     def assertPriorityMapping(self, expected, event):
@@ -172,8 +193,8 @@ class SyslogObserverTests(TestCase):
         self.observer.emit(m)
         self.assertEqual(
             self.events,
-            [(expected, '[-] hello,'),
-             (expected, '[-] \tworld')])
+            [(expected, '[-] hello,'), (expected, '[-] \tworld')]
+        )
 
 
     def test_emitLevelMissingLevelUseDefault(self):
