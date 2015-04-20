@@ -51,10 +51,20 @@ class BrokenStream(object):
 class StringTest(unittest.SynchronousTestCase):
     def stringComparison(self, expect, output):
         output = filter(None, output)
+
+        def formatted(stuff):
+            result = []
+            n = 0
+            for thing in stuff:
+                result.append("\n{0:4d}: {1!s}".format(n, thing))
+                n += 1
+            return "".join(result)
+
         self.failUnless(
             len(expect) <= len(output),
-            "Must have more observed than expected lines %d < %d"
-            % (len(output), len(expect))
+            "Must have more observed than expected lines %d < %d.\n"
+            "Output: %s\nExpected:%s"
+            % (len(output), len(expect), formatted(output), formatted(expect))
         )
         REGEX_PATTERN_TYPE = type(re.compile(''))
         for line_number, (exp, out) in enumerate(zip(expect, output)):
