@@ -4,17 +4,21 @@
 # Maintainer: Jonathan Lange
 # Author: Robert Collins
 
+import StringIO
+import os
+import pdb
+import sys
 
-import StringIO, os, pdb, sys
 from zope.interface import implementer
 from zope.interface.verify import verifyObject
 
 from twisted.trial.itrial import IReporter, ITestCase
 from twisted.trial import unittest, runner, reporter, util
 from twisted.trial._asyncrunner import _ForceGarbageCollectionDecorator
-from twisted.python import failure, log, reflect
+from twisted.python import failure, reflect
 from twisted.python.filepath import FilePath
 from twisted.python.reflect import namedAny
+from twisted.logger import Logger, LogPublisher, globalLogPublisher
 from twisted.scripts import trial
 from twisted.plugins import twisted_trial
 from twisted import plugin
@@ -109,7 +113,7 @@ class TrialRunnerTestsMixin:
 
 
     def _getObservers(self):
-        return log.theLogPublisher.observers
+        return globalLogPublisher._observers
 
 
     def test_addObservers(self):
@@ -129,9 +133,11 @@ class TrialRunnerTestsMixin:
         """
         oldSetUpLogFile = self.runner._setUpLogFile
         l = []
+
         def setUpLogFile():
             oldSetUpLogFile()
             l.append(self.runner._logFileObserver)
+
         self.runner._setUpLogFile = setUpLogFile
         self.runner.run(self.test)
         self.runner.run(self.test)
@@ -145,9 +151,11 @@ class TrialRunnerTestsMixin:
         """
         oldSetUpLogFile = self.runner._setUpLogFile
         l = []
+
         def setUpLogFile():
             oldSetUpLogFile()
             l.append(self.runner._logFileObject)
+
         self.runner._setUpLogFile = setUpLogFile
         self.runner.run(self.test)
         self.assertEqual(len(l), 1)
@@ -172,7 +180,7 @@ class TestTrialRunner(TrialRunnerTestsMixin, unittest.SynchronousTestCase):
         L{twisted.python.log} as the value for the C{publisher} parameter.
         """
         result = self.runner._makeResult()
-        self.assertIdentical(result._publisher, log)
+        self.assertIdentical(result._publisher, globalLogPublisher)
 
 
 
@@ -228,7 +236,10 @@ class DryRunMixin(object):
         then stops the test during a dry run.
         """
         result = self.runner.run(self.test)
-        self.assertEqual(result._calls, ['startTest', 'addSuccess', 'stopTest'])
+        self.assertEqual(
+            result._calls,
+            ['startTest', 'addSuccess', 'stopTest']
+        )
 
 
     def test_testsNotRun(self):
@@ -339,7 +350,7 @@ class TestRunner(unittest.SynchronousTestCase):
         # observer added by Reporter.__init__ still present in the system.
         # Something better needs to happen inside
         # TrialRunner._runWithoutDecoration to remove the need for this cludge.
-        r._log = log.LogPublisher()
+        r._log = LogPublisher()
         return r
 
 
@@ -514,8 +525,10 @@ class TestRunner(unittest.SynchronousTestCase):
         self.parseOptions(['--debug', 'twisted.trial.test.sample'])
 
         self.runcall_called = False
+
         def runcall(pdb, suite, result):
             self.runcall_called = True
+
         self.patch(pdb.Pdb, "runcall", runcall)
 
         self.runSampleSuite(self.getRunner())
@@ -534,8 +547,10 @@ class TestRunner(unittest.SynchronousTestCase):
         ])
 
         self.runcall_called = False
+
         def runcall(pdb, suite, result):
             self.runcall_called = True
+
         self.patch(pdb.Pdb, "runcall", runcall)
 
         self.runSampleSuite(self.getRunner())
@@ -589,6 +604,7 @@ class TestUntilFailure(unittest.SynchronousTestCase):
         A test case that fails when run 3 times in a row.
         """
         count = []
+
         def test_foo(self):
             self.count.append(None)
             if len(self.count) == 3:
@@ -626,9 +642,11 @@ class TestUntilFailure(unittest.SynchronousTestCase):
         time when run starts, but not at each turn.
         """
         decorated = []
+
         def decorate(test, interface):
             decorated.append((test, interface))
             return test
+
         self.patch(unittest, "decorate", decorate)
         result = self.runner.runUntilFailure(self.test)
         self.assertEqual(result.testsRun, 1)
@@ -643,18 +661,24 @@ class TestUntilFailure(unittest.SynchronousTestCase):
         L{ITestCase} decoration, but only one time.
         """
         decorated = []
+
         def decorate(test, interface):
             decorated.append((test, interface))
             return test
+
         self.patch(unittest, "decorate", decorate)
         self.runner._forceGarbageCollection = True
         result = self.runner.runUntilFailure(self.test)
         self.assertEqual(result.testsRun, 1)
 
         self.assertEqual(len(decorated), 2)
-        self.assertEqual(decorated,
-            [(self.test, ITestCase),
-             (self.test, _ForceGarbageCollectionDecorator)])
+        self.assertEqual(
+            decorated,
+            [
+                (self.test, ITestCase),
+                (self.test, _ForceGarbageCollectionDecorator),
+            ]
+        )
 
 
 
@@ -682,12 +706,13 @@ class BreakingSuite(runner.TestSuite):
     """
     A L{TestSuite} that logs an error when it is run.
     """
+    log = Logger()
 
     def run(self, result):
         try:
             raise RuntimeError("error that occurs outside of a test")
         except RuntimeError:
-            log.err(failure.Failure())
+            self.log.failure(None, failure.Failure())
 
 
 
@@ -771,9 +796,9 @@ class ErrorHolderTestsMixin(object):
     L{runner.ErrorHolder} constructed with either a L{Failure} or a
     C{exc_info}-style tuple.
 
-    Subclass this and implement C{setUp} to create C{self.holder} referring to a
-    L{runner.ErrorHolder} instance and C{self.error} referring to a L{Failure}
-    which the holder holds.
+    Subclass this and implement C{setUp} to create C{self.holder} referring to
+    a L{runner.ErrorHolder} instance and C{self.error} referring to a
+    L{Failure} which the holder holds.
     """
     exceptionForTests = ZeroDivisionError('integer division or modulo by zero')
 
@@ -812,7 +837,8 @@ class ErrorHolderTestsMixin(object):
         self.holder.run(self.result)
         self.assertEqual(
             self.result.errors,
-            [(self.holder, (self.error.type, self.error.value, self.error.tb))])
+            [(self.holder, (self.error.type, self.error.value, self.error.tb))]
+        )
 
 
     def test_call(self):
@@ -822,7 +848,8 @@ class ErrorHolderTestsMixin(object):
         self.holder(self.result)
         self.assertEqual(
             self.result.errors,
-            [(self.holder, (self.error.type, self.error.value, self.error.tb))])
+            [(self.holder, (self.error.type, self.error.value, self.error.tb))]
+        )
 
 
     def test_countTestCases(self):
@@ -837,9 +864,11 @@ class ErrorHolderTestsMixin(object):
         L{runner.ErrorHolder.__repr__} returns a string describing the error it
         holds.
         """
-        self.assertEqual(repr(self.holder),
+        self.assertEqual(
+            repr(self.holder),
             "<ErrorHolder description='description' "
-            "error=ZeroDivisionError('integer division or modulo by zero',)>")
+            "error=ZeroDivisionError('integer division or modulo by zero',)>"
+        )
 
 
 
@@ -888,8 +917,10 @@ class TestMalformedMethod(unittest.SynchronousTestCase):
         """
         def test_foo(self, blah):
             pass
+
         def test_bar():
             pass
+
         test_spam = defer.inlineCallbacks(test_bar)
 
     def _test(self, method):
@@ -934,9 +965,11 @@ class DestructiveTestSuiteTestCase(unittest.SynchronousTestCase):
         Thes destructive test suite should run the tests normally.
         """
         called = []
+
         class MockTest(pyunit.TestCase):
             def test_foo(test):
                 called.append(True)
+
         test = MockTest('test_foo')
         result = reporter.TestResult()
         suite = runner.DestructiveTestSuite([test])
@@ -952,13 +985,17 @@ class DestructiveTestSuiteTestCase(unittest.SynchronousTestCase):
         interrupt the suite.
         """
         called = []
+
         class MockTest(unittest.TestCase):
             def test_foo1(test):
                 called.append(1)
+
             def test_foo2(test):
                 raise KeyboardInterrupt()
+
             def test_foo3(test):
                 called.append(2)
+
         result = reporter.TestResult()
         loader = runner.TestLoader()
         loader.suiteFactory = runner.DestructiveTestSuite
@@ -1021,10 +1058,12 @@ class TestRunnerDeprecation(unittest.SynchronousTestCase):
         trialRunner = runner.TrialRunner(None)
         result = self.FakeReporter()
         trialRunner._makeResult = lambda: result
+
         def f():
             # We have to use a pyunit test, otherwise we'll get deprecation
             # warnings about using iterate() in a test.
             trialRunner.run(pyunit.TestCase('id'))
+
         self.assertWarns(
             DeprecationWarning,
             "%s should implement done() but doesn't. Falling back to "
@@ -1046,6 +1085,7 @@ class DryRunVisitorDeprecation(unittest.TestCase):
         warningsShown = self.flushWarnings([self.test_deprecated])
         self.assertEqual(1, len(warningsShown))
         self.assertEqual(
-                "twisted.trial.runner.DryRunVisitor was deprecated in "
-                "Twisted 13.0.0: Trial no longer has support for visitors",
-                warningsShown[0]['message'])
+            "twisted.trial.runner.DryRunVisitor was deprecated in "
+            "Twisted 13.0.0: Trial no longer has support for visitors",
+            warningsShown[0]['message']
+        )

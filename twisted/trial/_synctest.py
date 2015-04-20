@@ -11,18 +11,26 @@ Maintainer: Jonathan Lange
 from __future__ import division, absolute_import
 
 import inspect
-import os, warnings, sys, tempfile, types
+import os
+import warnings
+import sys
+import tempfile
+import types
 from dis import findlinestarts as _findlinestarts
 
-from twisted.python import failure, log, monkey
+from twisted.python import failure, monkey
 from twisted.python.reflect import fullyQualifiedName
 from twisted.python.util import runWithWarningsSuppressed
 from twisted.python.deprecate import (
-    getDeprecationWarningString, warnAboutFunction)
+    getDeprecationWarningString, warnAboutFunction
+)
+from twisted.logger import globalLogPublisher, Logger
 
 from twisted.trial import itrial, util
 
 import unittest as pyunit
+
+
 
 # Python > 2.6 has skip support built-in:
 if getattr(pyunit, "SkipTest", None):
@@ -31,8 +39,8 @@ else:
     class SkipTest(Exception):
         """
         Raise this (with a reason) to skip the current test. You may also set
-        method.skip to a reason string to skip it, or set class.skip to skip the
-        entire TestCase.
+        method.skip to a reason string to skip it, or set class.skip to skip
+        the entire TestCase.
         """
 
 
@@ -138,8 +146,8 @@ class _Warning(object):
 
 def _setWarningRegistryToNone(modules):
     """
-    Disable the per-module cache for every module found in C{modules}, typically
-    C{sys.modules}.
+    Disable the per-module cache for every module found in C{modules},
+    typically C{sys.modules}.
 
     @param modules: Dictionary of modules, typically sys.module dict
     """
@@ -166,8 +174,7 @@ def _collectWarnings(observeWarning, f, *args, **kwargs):
     """
     def showWarning(message, category, filename, lineno, file=None, line=None):
         assert isinstance(message, Warning)
-        observeWarning(_Warning(
-                message.args[0], category, filename, lineno))
+        observeWarning(_Warning(message.args[0], category, filename, lineno))
 
     # Disable the per-module cache for every module otherwise if the warning
     # which the caller is expecting us to collect was already emitted it won't
@@ -332,9 +339,9 @@ class _AssertRaisesContext(object):
         # No exception raised.
         if exceptionType is None:
             self._testCase.fail(
-                "{0} not raised ({1} returned)".format(
-                    self._expectedName, self._returnValue)
-                )
+                "{0} not raised ({1} returned)"
+                .format(self._expectedName, self._returnValue)
+            )
 
         if not isinstance(exceptionValue, exceptionType):
             # Support some Python 2.6 ridiculousness.  Exceptions raised using
@@ -353,10 +360,12 @@ class _AssertRaisesContext(object):
         if not issubclass(exceptionType, self._expected):
             reason = failure.Failure(exceptionValue, exceptionType, traceback)
             self._testCase.fail(
-                "{0} raised instead of {1}:\n {2}".format(
+                "{0} raised instead of {1}:\n {2}"
+                .format(
                     fullyQualifiedName(exceptionType),
-                    self._expectedName, reason.getTraceback()),
+                    self._expectedName, reason.getTraceback()
                 )
+            )
 
         # All good.
         return True
@@ -446,10 +455,12 @@ class _Assertions(pyunit.TestCase, object):
         (i.e. C{__eq__}) test.
 
         @param msg: if msg is None, then the failure message will be
-        '%r is not %r' % (first, second)
+            '%r is not %r' % (first, second)
         """
         if first is not second:
-            raise self.failureException(msg or '%r is not %r' % (first, second))
+            raise self.failureException(
+                msg or '%r is not %r' % (first, second)
+            )
         return first
     failUnlessIdentical = assertIdentical = assertIs
 
@@ -461,7 +472,7 @@ class _Assertions(pyunit.TestCase, object):
         (i.e. C{__eq__}) test.
 
         @param msg: if msg is None, then the failure message will be
-        '%r is %r' % (first, second)
+            '%r is %r' % (first, second)
         """
         if first is second:
             raise self.failureException(msg or '%r is %r' % (first, second))
@@ -474,7 +485,7 @@ class _Assertions(pyunit.TestCase, object):
         Fail the test if C{first} == C{second}.
 
         @param msg: if msg is None, then the failure message will be
-        '%r == %r' % (first, second)
+            '%r == %r' % (first, second)
         """
         if not first != second:
             raise self.failureException(msg or '%r == %r' % (first, second))
@@ -488,9 +499,9 @@ class _Assertions(pyunit.TestCase, object):
 
         @param containee: the value that should be in C{container}
         @param container: a sequence type, or in the case of a mapping type,
-                          will follow semantics of 'if key in dict.keys()'
+            will follow semantics of 'if key in dict.keys()'
         @param msg: if msg is None, then the failure message will be
-                    '%r not in %r' % (first, second)
+            '%r not in %r' % (first, second)
         """
         if containee not in container:
             raise self.failureException(msg or "%r not in %r"
@@ -505,9 +516,9 @@ class _Assertions(pyunit.TestCase, object):
 
         @param containee: the value that should not be in C{container}
         @param container: a sequence type, or in the case of a mapping type,
-                          will follow semantics of 'if key in dict.keys()'
+            will follow semantics of 'if key in dict.keys()'
         @param msg: if msg is None, then the failure message will be
-                    '%r in %r' % (first, second)
+            '%r in %r' % (first, second)
         """
         if containee in container:
             raise self.failureException(msg or "%r in %r"
@@ -609,8 +620,10 @@ class _Assertions(pyunit.TestCase, object):
             self.fail("No warnings emitted")
         first = warningsShown[0]
         for other in warningsShown[1:]:
-            if ((other.message, other.category)
-                != (first.message, first.category)):
+            if (
+                (other.message, other.category) !=
+                (first.message, first.category)
+            ):
                 self.fail("Can't handle different warnings")
         self.assertEqual(first.message, message)
         self.assertIdentical(first.category, category)
@@ -778,9 +791,11 @@ class _Assertions(pyunit.TestCase, object):
             L{Deferred<twisted.internet.defer.Deferred>} has a result.
         """
         result = []
+
         def cb(res):
             result.append(res)
             return res
+
         deferred.addBoth(cb)
         if result:
             # If there is already a failure, the self.fail below will
@@ -815,14 +830,14 @@ class _LogObserver(object):
 
     def _add(self):
         if self._added == 0:
-            log.addObserver(self.gotEvent)
+            globalLogPublisher.addObserver(self.gotEvent)
         self._added += 1
 
 
     def _remove(self):
         self._added -= 1
         if self._added == 0:
-            log.removeObserver(self.gotEvent)
+            globalLogPublisher.removeObserver(self.gotEvent)
 
 
     def _ignoreErrors(self, *errorTypes):
@@ -871,13 +886,12 @@ class _LogObserver(object):
         """
         The actual observer method. Called whenever a message is logged.
 
-        @param event: A dictionary containing the log message. Actual
-        structure undocumented (see source for L{twisted.python.log}).
+        @param event: A logging event.  (See L{twisted.logger}).
         """
-        if event.get('isError', False) and 'failure' in event:
-            f = event['failure']
-            if len(self._ignored) == 0 or not f.check(*self._ignored):
-                self._errors.append(f)
+        failure = event.get("log_failure", None)
+        if failure is not None:
+            if len(self._ignored) == 0 or not failure.check(*self._ignored):
+                self._errors.append(failure)
 
 
 
@@ -902,7 +916,7 @@ class SynchronousTestCase(_Assertions):
     cases for all methods beginning with 'test'.
 
     If an error is logged during the test run, the test will fail with an
-    error. See L{log.err}.
+    error. See L{Logger.failure}.
 
     @ivar failureException: An exception class, defaulting to C{FailTest}. If
     the test method raises this exception, it will be reported as a failure,
@@ -924,6 +938,8 @@ class SynchronousTestCase(_Assertions):
     raised in a test. Useful for testing deprecated code. See also
     L{util.suppress}.
     """
+    _logger = Logger()
+
     failureException = FailTest
 
     def __init__(self, methodName='runTest'):
@@ -1003,14 +1019,14 @@ class SynchronousTestCase(_Assertions):
 
         @param result: A L{TestResult} object.
         """
-        log.msg("--> %s <--" % (self.id()))
+        self._logger.info("--> {test} <--", test=self.id())
         new_result = itrial.IReporter(result, None)
         if new_result is None:
             result = PyUnitResultAdapter(result)
         else:
             result = new_result
         result.startTest(self)
-        if self.getSkip(): # don't run test methods that are marked as .skip
+        if self.getSkip():  # don't run test methods that are marked as .skip
             result.addSkip(self, self.getSkip())
             result.stopTest(self)
             return
@@ -1021,7 +1037,9 @@ class SynchronousTestCase(_Assertions):
         self._installObserver()
         # All the code inside _runFixturesAndTest will be run such that warnings
         # emitted by it will be collected and retrievable by flushWarnings.
-        _collectWarnings(self._warnings.append, self._runFixturesAndTest, result)
+        _collectWarnings(
+            self._warnings.append, self._runFixturesAndTest, result
+        )
 
         # Any collected warnings which the test method didn't flush get
         # re-emitted so they'll be logged or show up on stdout or whatever.
@@ -1131,8 +1149,10 @@ class SynchronousTestCase(_Assertions):
                 for aFunction in offendingFunctions:
                     if not isinstance(aFunction, (
                             types.FunctionType, types.MethodType)):
-                        raise ValueError("%r is not a function or method" % (
-                                aFunction,))
+                        raise ValueError(
+                            "%r is not a function or method"
+                            % (aFunction,)
+                        )
 
                     # inspect.getabsfile(aFunction) sometimes returns a
                     # filename which disagrees with the filename the warning

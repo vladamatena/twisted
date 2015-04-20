@@ -8,12 +8,15 @@ Tests for L{twisted.trial.reporter}.
 """
 from __future__ import division
 
-import errno, sys, os, re, StringIO
+import errno
+import sys
+import os
+import re
+import StringIO
 from inspect import getmro
 
-from twisted.internet.utils import suppressWarnings
-from twisted.python import log
 from twisted.python.failure import Failure
+from twisted.logger import LogPublisher
 from twisted.trial import itrial, unittest, runner, reporter, util
 from twisted.trial.reporter import _ExitWrapper, UncleanWarningsReporterWrapper
 from twisted.trial.test import erroneous
@@ -48,9 +51,11 @@ class BrokenStream(object):
 class StringTest(unittest.SynchronousTestCase):
     def stringComparison(self, expect, output):
         output = filter(None, output)
-        self.failUnless(len(expect) <= len(output),
-                        "Must have more observed than expected"
-                        "lines %d < %d" % (len(output), len(expect)))
+        self.failUnless(
+            len(expect) <= len(output),
+            "Must have more observed than expected lines %d < %d"
+            % (len(output), len(expect))
+        )
         REGEX_PATTERN_TYPE = type(re.compile(''))
         for line_number, (exp, out) in enumerate(zip(expect, output)):
             if exp is None:
@@ -153,7 +158,7 @@ class TestErrorReporting(StringTest):
             re.compile(r'^\s+self\.fail\("I fail"\)$'),
             'twisted.trial.unittest.FailTest: I fail',
             'twisted.trial.test.erroneous.TestRegularFail.test_fail',
-            ]
+        ]
         self.stringComparison(match, output)
 
 
@@ -306,8 +311,8 @@ class FormatFailures(StringTest):
             self.f = Failure()
         self.f.frames = [
             ['foo', 'foo/bar.py', 5, [('x', 5)], [('y', 'orange')]],
-            ['qux', 'foo/bar.py', 10, [('a', 'two')], [('b', 'MCMXCIX')]]
-            ]
+            ['qux', 'foo/bar.py', 10, [('a', 'two')], [('b', 'MCMXCIX')]],
+        ]
         self.stream = StringIO.StringIO()
         self.result = reporter.Reporter(self.stream)
 
@@ -478,10 +483,13 @@ class TestDirtyReactor(unittest.SynchronousTestCase):
         result.addError(self.test,
                         (self.dirtyError.type, self.dirtyError.value, None))
         self.assertEqual(len(result._originalReporter.errors), 1)
-        self.assertEqual(result._originalReporter.errors[0][1].type,
-                          self.dirtyError.type)
-        self.assertEqual(result._originalReporter.errors[0][1].value,
-                          self.dirtyError.value)
+        self.assertEqual(
+            result._originalReporter.errors[0][1].type, self.dirtyError.type
+        )
+        self.assertEqual(
+            result._originalReporter.errors[0][1].value,
+            self.dirtyError.value
+        )
 
 
 
@@ -582,7 +590,7 @@ class TestSkip(unittest.SynchronousTestCase):
         included in the summary at the end of the test suite.
         """
         try:
-            1/0
+            1 / 0
         except Exception, e:
             error = e
         self.result.addSkip(self.test, error)
@@ -707,7 +715,7 @@ class TodoTest(unittest.SynchronousTestCase):
         C{printErrors} output.
         """
         try:
-            1/0
+            1 / 0
         except Exception, e:
             error = e
         self.result.addExpectedFailure(self.test, Failure(error),
@@ -769,7 +777,7 @@ class TestTreeReporter(unittest.SynchronousTestCase):
 
     def makeError(self):
         try:
-            1/0
+            1 / 0
         except ZeroDivisionError:
             f = Failure()
         return f
@@ -871,7 +879,8 @@ class TestTreeReporter(unittest.SynchronousTestCase):
                 'first': first.id(),
                 'second': second.id(),
                 'third': third.id(),
-                })
+            }
+        )
 
 
 
@@ -892,7 +901,7 @@ class TestReporterInterface(unittest.SynchronousTestCase):
     def setUp(self):
         self.test = sample.FooTest('test_foo')
         self.stream = StringIO.StringIO()
-        self.publisher = log.LogPublisher()
+        self.publisher = LogPublisher()
         self.result = self.resultFactory(self.stream, publisher=self.publisher)
 
 
@@ -995,9 +1004,9 @@ class TestReporter(TestReporterInterface):
         category = 'exceptions.RuntimeWarning'
         filename = "path/to/some/file.py"
         lineno = 71
-        self.publisher.msg(
+        self.publisher(dict(
             warning=message, category=category,
-            filename=filename, lineno=lineno)
+            filename=filename, lineno=lineno))
         self.assertEqual(
             self.stream.getvalue(),
             "%s:%d: %s: %s\n" % (
@@ -1057,10 +1066,10 @@ class TestReporter(TestReporterInterface):
         self.result.done()
         self.stream.seek(0)
         self.stream.truncate()
-        self.publisher.msg(
+        self.publisher(dict(
             warning=RuntimeWarning("some message"),
             category='exceptions.RuntimeWarning',
-            filename="file/name.py", lineno=17)
+            filename="file/name.py", lineno=17))
         self.assertEqual(self.stream.getvalue(), "")
 
 

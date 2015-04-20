@@ -18,7 +18,7 @@ import unittest as pyunit
 
 from zope.interface import implementer
 
-from twisted.python import reflect, log
+from twisted.python import reflect
 from twisted.python.components import proxyForInterface
 from twisted.python.failure import Failure
 from twisted.python.util import untilConcludes
@@ -27,6 +27,7 @@ try:
 except ImportError:
     from twisted.python.util import OrderedDict
 from twisted.trial import itrial, util
+from twisted.logger import Logger
 
 try:
     from subunit import TestProtocolClient
@@ -321,8 +322,9 @@ class Reporter(TestResult):
 
     @ivar _publisher: The log publisher which will be observed for warning
         events.
-    @type _publisher: L{twisted.python.log.LogPublisher}
+    @type _publisher: L{twisted.logger.LogPublisher}
     """
+    _log = Logger()
 
     _separator = '-' * 79
     _doubleSeparator = '=' * 79
@@ -349,9 +351,9 @@ class Reporter(TestResult):
         This method is a log observer which will be registered with
         C{self._publisher.addObserver}.
 
-        @param event: A C{dict} from the logging system.  If it has a
-            C{'warning'} key, a logged warning will be extracted from it and
-            possibly written to C{self.stream}.
+        @param event: A logging event.  If it has a C{'warning'} key, a logged
+            warning will be extracted from it and possibly written to
+            C{self.stream}.
         """
         if 'warning' in event:
             key = (event['filename'], event['lineno'],
@@ -436,7 +438,7 @@ class Reporter(TestResult):
         super(Reporter, self).upDownError(method, error, warn, printStatus)
         if warn:
             tbStr = self._formatFailureTraceback(error)
-            log.msg(tbStr)
+            self._log.info(tbStr)
             msg = ("caught exception in %s, your TestCase is broken\n\n%s"
                    % (method, tbStr))
             warnings.warn(msg, BrokenTestCaseWarning, stacklevel=2)

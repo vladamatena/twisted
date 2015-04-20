@@ -16,20 +16,31 @@ __all__ = [
 
     'filenameToModule', 'isPackage', 'isPackageDirectory', 'isTestCase',
     'name', 'samefile', 'NOT_IN_TEST',
-    ]
+]
 
-import os, types, warnings, sys, inspect, imp
-import doctest, time
+import os
+import types
+import warnings
+import sys
+import inspect
+import imp
+import doctest
+import time
 
-from twisted.python import reflect, log, failure, modules, filepath
+from twisted.python import reflect, failure, modules, filepath
 from twisted.python.deprecate import deprecatedModuleAttribute
 from twisted.python.versions import Version
+from twisted.logger import (
+    Logger, globalLogPublisher, textFileLogObserver, globalLogBeginner
+)
 
 from twisted.internet import defer
 from twisted.trial import util, unittest
 from twisted.trial.itrial import ITestCase
 from twisted.trial.reporter import _ExitWrapper, UncleanWarningsReporterWrapper
-from twisted.trial._asyncrunner import _ForceGarbageCollectionDecorator, _iterateTests
+from twisted.trial._asyncrunner import (
+    _ForceGarbageCollectionDecorator, _iterateTests
+)
 from twisted.trial._synctest import _logObserver
 
 # These are imported so that they remain in the public API for t.trial.runner
@@ -125,7 +136,8 @@ def _getMethodNameInClass(method):
     """
     Find the attribute name on the method's class which refers to the method.
 
-    For some methods, notably decorators which have not had __name__ set correctly:
+    For some methods, notably decorators which have not had __name__ set
+    correctly:
 
     getattr(method.im_class, method.__name__) != method
     """
@@ -134,6 +146,7 @@ def _getMethodNameInClass(method):
             if getattr(method.im_class, alias, object()) == method:
                 return alias
     return method.__name__
+
 
 
 class DestructiveTestSuite(TestSuite):
@@ -209,7 +222,7 @@ class TrialSuite(TestSuite):
         d = defer.Deferred()
         reactor.addSystemEventTrigger('after', 'shutdown',
                                       lambda: d.callback(None))
-        reactor.fireSystemEvent('shutdown') # radix's suggestion
+        reactor.fireSystemEvent('shutdown')  # radix's suggestion
         # As long as TestCase does crap stuff with the reactor we need to
         # manually shutdown the reactor here, and that requires util.wait
         # :(
@@ -408,9 +421,9 @@ class TestLoader(object):
         If C{testSuite} and C{test_suite} are both present, then I'll use
         C{testSuite}.
         """
-        ## XXX - should I add an optional parameter to disable the check for
-        ## a custom suite.
-        ## OR, should I add another method
+        # XXX - should I add an optional parameter to disable the check for
+        # a custom suite.
+        # OR, should I add another method
         if not isinstance(module, types.ModuleType):
             raise TypeError("%r is not a module" % (module,))
         if hasattr(module, 'testSuite'):
@@ -438,7 +451,7 @@ class TestLoader(object):
         if not isTestCase(klass):
             raise ValueError("%r is not a test case" % (klass,))
         names = self.getTestCaseNames(klass)
-        tests = self.sort([self._makeCase(klass, self.methodPrefix+name)
+        tests = self.sort([self._makeCase(klass, self.methodPrefix + name)
                            for name in names])
         return self.suiteFactory(tests)
     loadTestsFromTestCase = loadClass
@@ -620,9 +633,10 @@ class DryRunVisitor(object):
     """
 
     deprecatedModuleAttribute(
-            Version("Twisted", 13, 0, 0),
-            "Trial no longer has support for visitors",
-            "twisted.trial.runner", "DryRunVisitor")
+        Version("Twisted", 13, 0, 0),
+        "Trial no longer has support for visitors",
+        "twisted.trial.runner", "DryRunVisitor",
+    )
 
 
     def __init__(self, reporter):
@@ -646,9 +660,11 @@ class TrialRunner(object):
     """
     A specialised runner that the trial front end uses.
     """
+    _logger = Logger()
 
     DEBUG = 'debug'
     DRY_RUN = 'dry-run'
+
 
     def _setUpTestdir(self):
         self._tearDownLogFile()
@@ -664,15 +680,15 @@ class TrialRunner(object):
         self._testDirLock.unlock()
 
 
-    _log = log
     def _makeResult(self):
         reporter = self.reporterFactory(self.stream, self.tbformat,
-                                        self.rterrors, self._log)
+                                        self.rterrors, globalLogPublisher)
         if self._exitFirst:
             reporter = _ExitWrapper(reporter)
         if self.uncleanWarnings:
             reporter = UncleanWarningsReporterWrapper(reporter)
         return reporter
+
 
     def __init__(self, reporterFactory,
                  mode=None,
@@ -703,13 +719,16 @@ class TrialRunner(object):
         if profile:
             self.run = util.profiled(self.run, 'profile.data')
 
+
     def _tearDownLogFile(self):
         if self._logFileObserver is not None:
-            log.removeObserver(self._logFileObserver.emit)
+            globalLogPublisher.removeObserver(self._logFileObserver)
             self._logFileObserver = None
+
         if self._logFileObject is not None:
             self._logFileObject.close()
             self._logFileObject = None
+
 
     def _setUpLogFile(self):
         self._tearDownLogFile()
@@ -717,9 +736,13 @@ class TrialRunner(object):
             logFile = sys.stdout
         else:
             logFile = file(self.logfile, 'a')
+
         self._logFileObject = logFile
-        self._logFileObserver = log.FileLogObserver(logFile)
-        log.startLoggingWithObserver(self._logFileObserver.emit, 0)
+        self._logFileObserver = textFileLogObserver(logFile)
+
+        globalLogBeginner.beginLoggingTo([self._logFileObserver], True, False)
+        self._logger.info("Trial log opened.")
+
 
 
     def run(self, test):

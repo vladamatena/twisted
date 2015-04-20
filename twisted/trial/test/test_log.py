@@ -6,11 +6,13 @@ Test the interaction between trial and errors logged during test run.
 """
 from __future__ import division, absolute_import
 
-import time
-
 from twisted.internet import reactor, task
-from twisted.python import failure, log
+from twisted.python import failure
 from twisted.trial import unittest, reporter, _synctest
+from twisted.logger import Logger, globalLogPublisher
+
+log = Logger()
+
 
 
 def makeFailure():
@@ -18,7 +20,7 @@ def makeFailure():
     Return a new, realistic failure.
     """
     try:
-        1/0
+        1 / 0
     except ZeroDivisionError:
         f = failure.Failure()
     return f
@@ -37,19 +39,21 @@ class Mask(object):
 
         def test_single(self):
             """
-            Log a single error.
+            Log a single failure.
             """
-            log.err(makeFailure())
+            log.failure(None, makeFailure())
 
         def test_double(self):
             """
-            Log two errors.
+            Log two failures.
             """
-            log.err(makeFailure())
-            log.err(makeFailure())
+            log.failure(None, makeFailure())
+            log.failure(None, makeFailure())
 
 
-    class SynchronousFailureLogging(FailureLoggingMixin, unittest.SynchronousTestCase):
+    class SynchronousFailureLogging(
+        FailureLoggingMixin, unittest.SynchronousTestCase
+    ):
         pass
 
 
@@ -58,7 +62,9 @@ class Mask(object):
             """
             Log an error in an asynchronous callback.
             """
-            return task.deferLater(reactor, 0, lambda: log.err(makeFailure()))
+            return task.deferLater(
+                reactor, 0, lambda: log.failure(None, makeFailure())
+            )
 
 
 
@@ -72,31 +78,27 @@ class TestObserver(unittest.SynchronousTestCase):
         self.observer = _synctest._LogObserver()
 
 
-    def test_msg(self):
+    def test_nonError(self):
         """
-        Test that a standard log message doesn't go anywhere near the result.
+        A non-error message doesn't get added to the result.
         """
-        self.observer.gotEvent({'message': ('some message',),
-                                'time': time.time(), 'isError': 0,
-                                'system': '-'})
+        self.observer.gotEvent({})
         self.assertEqual(self.observer.getErrors(), [])
 
 
     def test_error(self):
         """
-        Test that an observed error gets added to the result
+        An observed error gets added to the result.
         """
         f = makeFailure()
-        self.observer.gotEvent({'message': (),
-                                'time': time.time(), 'isError': 1,
-                                'system': '-', 'failure': f,
-                                'why': None})
+        self.observer.gotEvent(dict(log_failure=f))
         self.assertEqual(self.observer.getErrors(), [f])
 
 
     def test_flush(self):
         """
-        Check that flushing the observer with no args removes all errors.
+        Check that flushing the observer with no args removes all errors and
+        returns the previously observed errors.
         """
         self.test_error()
         flushed = self.observer.flushErrors()
@@ -113,10 +115,9 @@ class TestObserver(unittest.SynchronousTestCase):
         """
         Check that flushing the observer remove all failures of the given type.
         """
-        self.test_error() # log a ZeroDivisionError to the observer
+        self.test_error()  # log a ZeroDivisionError to the observer
         f = self._makeRuntimeFailure()
-        self.observer.gotEvent(dict(message=(), time=time.time(), isError=1,
-                                    system='-', failure=f, why=None))
+        self.observer.gotEvent(dict(log_failure=f))
         flushed = self.observer.flushErrors(ZeroDivisionError)
         self.assertEqual(self.observer.getErrors(), [f])
         self.assertEqual(len(flushed), 1)
@@ -129,25 +130,19 @@ class TestObserver(unittest.SynchronousTestCase):
         """
         self.observer._ignoreErrors(ZeroDivisionError)
         f = makeFailure()
-        self.observer.gotEvent({'message': (),
-                                'time': time.time(), 'isError': 1,
-                                'system': '-', 'failure': f,
-                                'why': None})
+        self.observer.gotEvent(dict(log_failure=f))
         self.assertEqual(self.observer.getErrors(), [])
 
 
     def test_clearIgnores(self):
         """
-        Check that C{_clearIgnores} ensures that previously ignored errors
-        get captured.
+        Check that C{_clearIgnores} ensures that previously ignored errors get
+        captured.
         """
         self.observer._ignoreErrors(ZeroDivisionError)
         self.observer._clearIgnores()
         f = makeFailure()
-        self.observer.gotEvent({'message': (),
-                                'time': time.time(), 'isError': 1,
-                                'system': '-', 'failure': f,
-                                'why': None})
+        self.observer.gotEvent(dict(log_failure=f))
         self.assertEqual(self.observer.getErrors(), [f])
 
 
@@ -205,13 +200,15 @@ class LogErrorsMixin(object):
         """
         There are no extra log observers after a test runs.
         """
-        # XXX trial is *all about* global log state.  It should really be fixed.
+        # trial is *all about* global log state.  It should really be fixed.
+        # The global observer list is private in the new logging system, so...
+        # yeah.
         observer = _synctest._LogObserver()
         self.patch(_synctest, '_logObserver', observer)
-        observers = log.theLogPublisher.observers[:]
+        observers = list(globalLogPublisher._observers)
         test = self.MockTest()
         test(self.result)
-        self.assertEqual(observers, log.theLogPublisher.observers)
+        self.assertEqual(observers, globalLogPublisher._observers)
 
 
 
