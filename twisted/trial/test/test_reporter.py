@@ -52,9 +52,13 @@ class StringTest(unittest.SynchronousTestCase):
     def stringComparison(self, expect, output):
         output = filter(None, output)
 
+        REGEX_PATTERN_TYPE = type(re.compile(''))
+
         def formatted(lines):
             result = []
             for lineNumber, line in enumerate(lines):
+                if isinstance(line, REGEX_PATTERN_TYPE):
+                    line = "{0!r}".format(line.pattern)
                 result.append("\n{0:4d}: {1!s}".format(lineNumber, line))
             return "".join(result)
 
@@ -68,7 +72,7 @@ class StringTest(unittest.SynchronousTestCase):
             "Must have more observed than expected lines ({0:d} < {1:d})\n{2}"
             .format(len(output), len(expect), formatInputs())
         )
-        REGEX_PATTERN_TYPE = type(re.compile(''))
+
         for line_number, (exp, out) in enumerate(zip(expect, output)):
             if exp is None:
                 continue
