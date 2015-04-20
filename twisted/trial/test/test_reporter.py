@@ -52,34 +52,42 @@ class StringTest(unittest.SynchronousTestCase):
     def stringComparison(self, expect, output):
         output = filter(None, output)
 
-        def formatted(stuff):
+        def formatted(lines):
             result = []
-            n = 0
-            for thing in stuff:
-                result.append("\n{0:4d}: {1!s}".format(n, thing))
-                n += 1
+            for lineNumber, line in enumerate(lines):
+                result.append("\n{0:4d}: {1!s}".format(lineNumber, line))
             return "".join(result)
+
+        def formatInputs():
+            return "Observed: {0}\nExpected:{1}".format(
+                formatted(output), formatted(expect)
+            )
 
         self.failUnless(
             len(expect) <= len(output),
-            "Must have more observed than expected lines %d < %d.\n"
-            "Output: %s\nExpected:%s"
-            % (len(output), len(expect), formatted(output), formatted(expect))
+            "Must have more observed than expected lines ({0:d} < {1:d})\n{2}"
+            .format(len(output), len(expect), formatInputs())
         )
         REGEX_PATTERN_TYPE = type(re.compile(''))
         for line_number, (exp, out) in enumerate(zip(expect, output)):
             if exp is None:
                 continue
             elif isinstance(exp, str):
-                self.assertSubstring(exp, out, "Line %d: %r not in %r"
-                                     % (line_number, exp, out))
+                self.assertSubstring(
+                    exp, out,
+                    "Line {0:d}: {1!r} not in {2!r}\n{3}"
+                    .format(line_number, exp, out, formatInputs())
+                )
             elif isinstance(exp, REGEX_PATTERN_TYPE):
-                self.failUnless(exp.match(out),
-                                "Line %d: %r did not match string %r"
-                                % (line_number, exp.pattern, out))
+                self.failUnless(
+                    exp.match(out),
+                    "Line {0:d}: {1!r} did not match string {2!r}\n{3}"
+                    .format(line_number, exp.pattern, out, formatInputs())
+                )
             else:
-                raise TypeError("don't know what to do with object %r"
-                                % (exp,))
+                raise TypeError(
+                    "Don't know what to do with object {0!r}".format(exp)
+                )
 
 
 class TestTestResult(unittest.SynchronousTestCase):
@@ -224,7 +232,8 @@ class TestErrorReporting(StringTest):
             re.compile('^\s+File .*erroneous\.py", line \d+, in go'),
             re.compile('^\s+raise RuntimeError\(self.hiddenExceptionMsg\)'),
             'exceptions.RuntimeError: something blew up',
-            'twisted.trial.test.erroneous.DelayedCall.testHiddenException']
+            'twisted.trial.test.erroneous.DelayedCall.testHiddenException',
+        ]
         self.stringComparison(match, output)
 
 
