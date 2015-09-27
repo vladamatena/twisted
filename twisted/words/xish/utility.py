@@ -102,7 +102,7 @@ class CallbackList:
         @type kwargs: C{dict}
         """
 
-        for key, (methodwrapper, onetime) in self.callbacks.items():
+        for key, (methodwrapper, onetime) in list(self.callbacks.items()):
             try:
                 methodwrapper(*args, **kwargs)
             except:
@@ -267,8 +267,8 @@ class EventDispatcher:
         event, observers = self._getEventAndObservers(event)
 
         emptyLists = []
-        for priority, priorityObservers in observers.iteritems():
-            for query, callbacklist in priorityObservers.iteritems():
+        for priority, priorityObservers in observers.items():
+            for query, callbacklist in priorityObservers.items():
                 if event == query:
                     callbacklist.removeCallback(observerfn)
                     if callbacklist.isEmpty():
@@ -306,13 +306,13 @@ class EventDispatcher:
             observers = self._xpathObservers
             match = lambda query, obj: query.matches(obj)
 
-        priorities = observers.keys()
+        priorities = list(observers.keys())
         priorities.sort()
         priorities.reverse()
 
         emptyLists = []
         for priority in priorities:
-            for query, callbacklist in observers[priority].iteritems():
+            for query, callbacklist in observers[priority].items():
                 if match(query, obj):
                     callbacklist.callback(obj)
                     foundTarget = True

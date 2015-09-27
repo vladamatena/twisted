@@ -12,7 +12,7 @@ from unicodedata import ucd_3_2_0 as unicodedata
 from twisted.python.versions import Version
 from twisted.python.deprecate import deprecatedModuleAttribute
 
-from zope.interface import Interface, implements
+from zope.interface import Interface, implements, implementer
 
 
 crippled = False
@@ -47,19 +47,15 @@ class IMappingTable(Interface):
         """
 
 
-
+@implementer(ILookupTable)
 class LookupTableFromFunction:
-
-    implements(ILookupTable)
 
     def __init__(self, in_table_function):
         self.lookup = in_table_function
 
 
-
+@implementer(ILookupTable)
 class LookupTable:
-
-    implements(ILookupTable)
 
     def __init__(self, table):
         self._table = table
@@ -68,19 +64,15 @@ class LookupTable:
         return c in self._table
 
 
-
+@implementer(IMappingTable)
 class MappingTableFromFunction:
-
-    implements(IMappingTable)
 
     def __init__(self, map_table_function):
         self.map = map_table_function
 
 
-
+@implementer(IMappingTable)
 class EmptyMappingTable:
-
-    implements(IMappingTable)
 
     def __init__(self, in_table_function):
         self._in_table_function = in_table_function
@@ -127,18 +119,18 @@ class Profile:
             if result_c is not None:
                 result.append(result_c)
 
-        return u"".join(result)
+        return "".join(result)
 
     def check_prohibiteds(self, string):
         for c in string:
             for table in self.prohibiteds:
                 if table.lookup(c):
-                    raise UnicodeError, "Invalid character %s" % repr(c)
+                    raise UnicodeError("Invalid character %s" % repr(c))
 
     def check_unassigneds(self, string):
         for c in string:
             if stringprep.in_table_a1(c):
-                raise UnicodeError, "Unassigned code point %s" % repr(c)
+                raise UnicodeError("Unassigned code point %s" % repr(c))
 
     def check_bidirectionals(self, string):
         found_LCat = False
@@ -151,11 +143,11 @@ class Profile:
                 found_LCat = True
 
         if found_LCat and found_RandALCat:
-            raise UnicodeError, "Violation of BIDI Requirement 2"
+            raise UnicodeError("Violation of BIDI Requirement 2")
 
         if found_RandALCat and not (stringprep.in_table_d1(string[0]) and
                                     stringprep.in_table_d1(string[-1])):
-            raise UnicodeError, "Violation of BIDI Requirement 3"
+            raise UnicodeError("Violation of BIDI Requirement 3")
 
 
 class NamePrep:
@@ -181,11 +173,11 @@ class NamePrep:
     """
 
     # Prohibited characters.
-    prohibiteds = [unichr(n) for n in range(0x00, 0x2c + 1) +
-                                       range(0x2e, 0x2f + 1) +
-                                       range(0x3a, 0x40 + 1) +
-                                       range(0x5b, 0x60 + 1) +
-                                       range(0x7b, 0x7f + 1) ]
+    prohibiteds = [chr(n) for n in list(range(0x00, 0x2c + 1)) +
+                                       list(range(0x2e, 0x2f + 1)) +
+                                       list(range(0x3a, 0x40 + 1)) +
+                                       list(range(0x5b, 0x60 + 1)) +
+                                       list(range(0x7b, 0x7f + 1)) ]
 
     def prepare(self, string):
         result = []
@@ -206,15 +198,15 @@ class NamePrep:
     def check_prohibiteds(self, string):
         for c in string:
            if c in self.prohibiteds:
-               raise UnicodeError, "Invalid character %s" % repr(c)
+               raise UnicodeError("Invalid character %s" % repr(c))
 
     def nameprep(self, label):
         label = idna.nameprep(label)
         self.check_prohibiteds(label)
         if label[0] == '-':
-            raise UnicodeError, "Invalid leading hyphen-minus"
+            raise UnicodeError("Invalid leading hyphen-minus")
         if label[-1] == '-':
-            raise UnicodeError, "Invalid trailing hyphen-minus"
+            raise UnicodeError("Invalid trailing hyphen-minus")
         return label
 
 
@@ -236,8 +228,8 @@ B_2 = MappingTableFromFunction(stringprep.map_table_b2)
 nodeprep = Profile(mappings=[B_1, B_2],
                    prohibiteds=[C_11, C_12, C_21, C_22,
                                 C_3, C_4, C_5, C_6, C_7, C_8, C_9,
-                                LookupTable([u'"', u'&', u"'", u'/',
-                                             u':', u'<', u'>', u'@'])])
+                                LookupTable(['"', '&', "'", '/',
+                                             ':', '<', '>', '@'])])
 
 resourceprep = Profile(mappings=[B_1,],
                        prohibiteds=[C_12, C_21, C_22,

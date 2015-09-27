@@ -12,9 +12,9 @@ XPath-like expressions.
 """
 
 try:
-    import cStringIO as StringIO
+    import io as StringIO
 except ImportError:
-    import StringIO
+    import io
 
 class LiteralValue(str):
     def value(self, elem):
@@ -182,7 +182,7 @@ class _Location:
                 self.childLocation.queryForStringList(c, resultlist)
         else:
             for c in elem.children:
-                if isinstance(c, (str, unicode)):
+                if isinstance(c, str):
                     resultlist.append(c)
 
 
@@ -269,7 +269,7 @@ class _AnyLocation:
     def queryForStringList(self, elem, resultlist):
         if self.isRootMatch(elem):
             for c in elem.children:
-                if isinstance(c, (str, unicode)):
+                if isinstance(c, str):
                     resultlist.append(c)
         for c in elem.elements():
             self.queryForStringList(c, resultlist)
@@ -288,7 +288,7 @@ class XPathQuery:
         return self.baseLocation.matches(elem)
 
     def queryForString(self, elem):
-        result = StringIO.StringIO()
+        result = io.StringIO()
         self.baseLocation.queryForString(elem, result)
         return result.getvalue()
 

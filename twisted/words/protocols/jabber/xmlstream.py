@@ -12,7 +12,7 @@ Stanzas.
 """
 
 from hashlib import sha1
-from zope.interface import directlyProvides, implements
+from zope.interface import directlyProvides, implements, implementer
 
 from twisted.internet import defer, protocol
 from twisted.internet.error import ConnectionLost
@@ -23,6 +23,7 @@ from twisted.words.xish.xmlstream import STREAM_CONNECTED_EVENT
 from twisted.words.xish.xmlstream import STREAM_START_EVENT
 from twisted.words.xish.xmlstream import STREAM_END_EVENT
 from twisted.words.xish.xmlstream import STREAM_ERROR_EVENT
+import sys
 
 try:
     from twisted.internet import ssl
@@ -31,8 +32,8 @@ except ImportError:
 if ssl and not ssl.supported:
     ssl = None
 
-STREAM_AUTHD_EVENT = intern("//event/stream/authd")
-INIT_FAILED_EVENT = intern("//event/xmpp/initfailed")
+STREAM_AUTHD_EVENT = sys.intern("//event/stream/authd")
+INIT_FAILED_EVENT = sys.intern("//event/xmpp/initfailed")
 
 NS_STREAMS = 'http://etherx.jabber.org/streams'
 NS_XMPP_TLS = 'urn:ietf:params:xml:ns:xmpp-tls'
@@ -48,11 +49,11 @@ def hashPassword(sid, password):
     @param password: The password to be hashed.
     @type password: C{unicode}.
     """
-    if not isinstance(sid, unicode):
+    if not isinstance(sid, str):
         raise TypeError("The session identifier must be a unicode object")
-    if not isinstance(password, unicode):
+    if not isinstance(password, str):
         raise TypeError("The password must be a unicode object")
-    input = u"%s%s" % (sid, password)
+    input = "%s%s" % (sid, password)
     return sha1(input.encode('utf-8')).hexdigest()
 
 
@@ -276,10 +277,10 @@ class ListenAuthenticator(Authenticator):
             self.xmlstream.thisEntity = jid.internJID(rootElement["to"])
 
         self.xmlstream.prefixes = {}
-        for prefix, uri in rootElement.localPrefixes.iteritems():
+        for prefix, uri in rootElement.localPrefixes.items():
             self.xmlstream.prefixes[uri] = prefix
 
-        self.xmlstream.sid = unicode(randbytes.secureRandom(8).encode('hex'))
+        self.xmlstream.sid = str(randbytes.secureRandom(8).encode('hex'))
 
 
 
@@ -290,7 +291,7 @@ class FeatureNotAdvertized(Exception):
     """
 
 
-
+@implementer(ijabber.IInitiatingInitializer)
 class BaseFeatureInitiatingInitializer(object):
     """
     Base class for initializers with a stream feature.
@@ -304,8 +305,6 @@ class BaseFeatureInitiatingInitializer(object):
                     by the receiving entity.
     @type required: C{bool}
     """
-
-    implements(ijabber.IInitiatingInitializer)
 
     feature = None
     required = False
@@ -537,7 +536,7 @@ class XmlStream(xmlstream.XmlStream):
         """
         # set up optional extra namespaces
         localPrefixes = {}
-        for uri, prefix in self.prefixes.iteritems():
+        for uri, prefix in self.prefixes.items():
             if uri != NS_STREAMS:
                 localPrefixes[prefix] = uri
 
@@ -602,7 +601,7 @@ class XmlStream(xmlstream.XmlStream):
         if domish.IElement.providedBy(obj):
             obj = obj.toXml(prefixes=self.prefixes,
                             defaultUri=self.namespace,
-                            prefixesInScope=self.prefixes.values())
+                            prefixesInScope=list(self.prefixes.values()))
 
         xmlstream.XmlStream.send(self, obj)
 
@@ -745,7 +744,7 @@ def upgradeWithIQResponseTracker(xs):
         """
         iqDeferreds = xs.iqDeferreds
         xs.iqDeferreds = {}
-        for d in iqDeferreds.itervalues():
+        for d in iqDeferreds.values():
             d.errback(ConnectionLost())
 
     xs.iqDeferreds = {}
@@ -862,7 +861,7 @@ def toResponse(stanza, stanzaType=None):
     return response
 
 
-
+@implementer(ijabber.IXMPPHandler)
 class XMPPHandler(object):
     """
     XMPP protocol handler.
@@ -870,8 +869,6 @@ class XMPPHandler(object):
     Classes derived from this class implement (part of) one or more XMPP
     extension protocols, and are referred to as a subprotocol implementation.
     """
-
-    implements(ijabber.IXMPPHandler)
 
     def __init__(self):
         self.parent = None
@@ -938,7 +935,7 @@ class XMPPHandler(object):
         self.parent.send(obj)
 
 
-
+@implementer(ijabber.IXMPPHandlerCollection)
 class XMPPHandlerCollection(object):
     """
     Collection of XMPP subprotocol handlers.
@@ -950,8 +947,6 @@ class XMPPHandlerCollection(object):
     @type handlers: C{list} of objects providing
                       L{IXMPPHandler}
     """
-
-    implements(ijabber.IXMPPHandlerCollection)
 
     def __init__(self):
         self.handlers = []

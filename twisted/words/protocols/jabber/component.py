@@ -18,7 +18,7 @@ ServiceManager connects to the Jabber server and is responsible for the
 corresponding XML stream.
 """
 
-from zope.interface import implements
+from zope.interface import implements, implementer
 
 from twisted.application import service
 from twisted.internet import defer
@@ -58,7 +58,7 @@ class ComponentInitiatingInitializer(object):
         xs = self.xmlstream
         hs = domish.Element((self.xmlstream.namespace, "handshake"))
         hs.addContent(xmlstream.hashPassword(xs.sid,
-                                             unicode(xs.authenticator.password)))
+                                             str(xs.authenticator.password)))
 
         # Setup observer to watch for handshake result
         xs.addOnetimeObserver("/handshake", self._cbHandshake)
@@ -168,7 +168,7 @@ class ListenComponentAuthenticator(xmlstream.ListenAuthenticator):
         L{onHandshake}.
         """
         if (element.uri, element.name) == (self.namespace, 'handshake'):
-            self.onHandshake(unicode(element))
+            self.onHandshake(str(element))
         else:
             exc = error.StreamError('not-authorized')
             self.xmlstream.sendStreamError(exc)
@@ -184,7 +184,7 @@ class ListenComponentAuthenticator(xmlstream.ListenAuthenticator):
         be exchanged.
         """
         calculatedHash = xmlstream.hashPassword(self.xmlstream.sid,
-                                                unicode(self.secret))
+                                                str(self.secret))
         if handshake != calculatedHash:
             exc = error.StreamError('not-authorized', text='Invalid hash')
             self.xmlstream.sendStreamError(exc)
@@ -194,13 +194,11 @@ class ListenComponentAuthenticator(xmlstream.ListenAuthenticator):
                                     xmlstream.STREAM_AUTHD_EVENT)
 
 
-
+@implementer(ijabber.IService)
 class Service(service.Service):
     """
     External server-side component service.
     """
-
-    implements(ijabber.IService)
 
     def componentConnected(self, xs):
         pass
