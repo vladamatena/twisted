@@ -231,8 +231,8 @@ class StanzaError(BaseError):
 
 def _getText(element):
     for child in element.children:
-        if isinstance(child, basestring):
-            return unicode(child)
+        if isinstance(child, str):
+            return str(child)
 
     return None
 
